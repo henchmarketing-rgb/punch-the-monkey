@@ -125,11 +125,11 @@ export default class UIScene extends Phaser.Scene {
     const pOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.82).setOrigin(0.5)
 
     // Wood/bark card
-    const pCard = this.add.rectangle(0, 0, 480, 290, 0x1a0e05).setOrigin(0.5)
+    const pCard = this.add.rectangle(0, 0, 480, 360, 0x1a0e05).setOrigin(0.5)
     pCard.setStrokeStyle(3, 0x3da820)
 
     // Inner accent border (vine green inset line)
-    const pInner = this.add.rectangle(0, 0, 464, 274, 0x000000, 0).setOrigin(0.5)
+    const pInner = this.add.rectangle(0, 0, 464, 344, 0x000000, 0).setOrigin(0.5)
     pInner.setStrokeStyle(1, 0x2a6a10)
 
     // Leaf corner decorations (Graphics inside container)
@@ -187,11 +187,48 @@ export default class UIScene extends Phaser.Scene {
     })
 
     // Key hint
-    const keyHint = this.add.text(0, 118, 'P or ESC to resume', {
+    // Controls reference row
+    const isMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
+    const ctrlItems = isMobile
+      ? [{ icon: '🕹️', desc: 'Move' }, { icon: '🥊', desc: 'Punch' }, { icon: '🦵', desc: 'Kick' }, { icon: '⭐', desc: 'Special' }]
+      : [{ icon: '↑←↓→', desc: 'Move' }, { icon: 'Z', desc: 'Punch' }, { icon: 'X', desc: 'Kick' }, { icon: 'A', desc: 'Special' }]
+
+    const ctrlDivider = this.add.graphics()
+    ctrlDivider.lineStyle(1, 0x3da820, 0.3)
+    ctrlDivider.lineBetween(-180, 104, 180, 104)
+
+    const ctrlLabel = this.add.text(0, 112, 'CONTROLS', {
+      fontSize: '9px', fontFamily: 'monospace', color: '#4a7a18',
+    }).setOrigin(0.5)
+
+    const ctrlGfx = this.add.graphics()
+    const ctrlObjs = [ctrlDivider, ctrlLabel, ctrlGfx]
+
+    ctrlItems.forEach(({ icon, desc }, i) => {
+      const totalW = ctrlItems.length * 90
+      const cx = -totalW / 2 + i * 90 + 45
+      const cy = 140
+
+      ctrlGfx.fillStyle(0x1a3a08, 0.8)
+      ctrlGfx.fillRoundedRect(cx - 18, cy - 18, 36, 26, 3)
+      ctrlGfx.lineStyle(1, 0x4a8a18, 0.7)
+      ctrlGfx.strokeRoundedRect(cx - 18, cy - 18, 36, 26, 3)
+
+      ctrlObjs.push(this.add.text(cx, cy - 5, icon, {
+        fontSize: icon.length > 2 ? '9px' : '13px', fontFamily: 'monospace', color: '#c8f080',
+        stroke: '#0a0804', strokeThickness: 1,
+      }).setOrigin(0.5))
+
+      ctrlObjs.push(this.add.text(cx, cy + 14, desc.toUpperCase(), {
+        fontSize: '8px', fontFamily: 'monospace', color: '#8acc44',
+      }).setOrigin(0.5))
+    })
+
+    const keyHint = this.add.text(0, 165, 'P or ESC to resume', {
       fontSize: '10px', fontFamily: 'monospace', color: '#4a7a18',
     }).setOrigin(0.5)
 
-    this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, keyHint])
+    this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, ...ctrlObjs, keyHint])
 
     // ── CONTROLS POPUP (fades in then out at game start) ──
     this.showControlsPopup()
