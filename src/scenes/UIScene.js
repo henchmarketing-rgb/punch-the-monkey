@@ -510,7 +510,7 @@ export default class UIScene extends Phaser.Scene {
       })
     }
 
-    this.time.delayedCall(8000, dismiss)
+    this.time.delayedCall(4000, dismiss)
     // Delay input listeners — avoids the tap that launched the game instantly dismissing the popup
     this.time.delayedCall(900, () => {
       this.input.once('pointerdown', dismiss)
