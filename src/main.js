@@ -9,9 +9,8 @@ import GameOverScene   from './scenes/GameOverScene.js'
 import WinScene        from './scenes/WinScene.js'
 
 const config = {
-  // Canvas for everyone — this is a 2D pixel art game, WebGL adds no benefit
-  // and silently black-screens on certain devices/browsers/drivers
   type: Phaser.CANVAS,
+  parent: 'game-container',
   width:  1440,
   height: 810,
   backgroundColor: '#07061a',
@@ -20,6 +19,7 @@ const config = {
   scale: {
     mode:       Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    parent:     'game-container',
   },
   physics: {
     default: 'arcade',
