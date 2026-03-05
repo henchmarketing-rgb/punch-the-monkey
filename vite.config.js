@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/',
+  base: './',
   build: {
     outDir: 'dist',
-    assetsDir: '_build',   // compiled JS/CSS here — keeps it out of /assets/ (game assets)
+    assetsDir: '_build',
   },
   server: {
     port: 5173
