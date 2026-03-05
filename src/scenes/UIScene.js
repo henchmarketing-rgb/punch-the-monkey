@@ -385,85 +385,76 @@ export default class UIScene extends Phaser.Scene {
 
   createKeyLegend() {
     const { height } = this.scale
-    const KS  = 17    // key cap size (px)
-    const KG  = 3     // gap between keys
-    const PAD = 7     // container padding
+    const KS    = 14   // key cap size
+    const KG    = 2    // gap between keys
+    const PAD   = 6    // container padding
     const DEPTH = 106
 
-    // Container anchor — bottom left
+    // Arrow cluster: 3 cols × 2 rows (↑ centred top, ← ↓ → bottom)
+    const arrowW = 3 * (KS + KG) - KG   // 46px
+    const arrowH = 2 * (KS + KG) - KG   // 30px
+
+    // Action keys: Z X A in one row (same row as arrows bottom row)
+    const sepW  = 9
+    const actW  = 3 * (KS + KG) - KG    // 46px
+
+    const totalW = PAD + arrowW + sepW + actW + PAD   // ~121px
+    const totalH = PAD + arrowH + PAD                 // ~42px
+
+    // Anchor bottom-left
     const ox = 12
     const oy = height - 12
 
-    // Layout measurements
-    const arrowW  = 3 * (KS + KG) - KG   // 3 cols
-    const arrowH  = 2 * (KS + KG) - KG   // 2 rows
-    const actW    = 3 * (KS + KG) - KG
-    const sepW    = 10
-    const lblH    = 11                    // label row height
-    const totalW  = arrowW + sepW + actW + PAD * 2
-    const totalH  = arrowH + lblH + 6 + PAD * 2
-
-    // Glass backing
+    // ── Glass backing ──
     const gfx = this.add.graphics().setDepth(DEPTH)
-    gfx.fillStyle(0x080808, 0.30)
-    gfx.fillRoundedRect(ox, oy - totalH, totalW, totalH, 5)
-    gfx.lineStyle(1, 0xffffff, 0.13)
-    gfx.strokeRoundedRect(ox, oy - totalH, totalW, totalH, 5)
-    // top glass sheen line
+    gfx.fillStyle(0x050508, 0.28)
+    gfx.fillRoundedRect(ox, oy - totalH, totalW, totalH, 4)
     gfx.lineStyle(1, 0xffffff, 0.10)
-    gfx.lineBetween(ox + 5, oy - totalH + 1, ox + totalW - 5, oy - totalH + 1)
+    gfx.strokeRoundedRect(ox, oy - totalH, totalW, totalH, 4)
+    // glass top sheen
+    gfx.lineStyle(1, 0xffffff, 0.08)
+    gfx.lineBetween(ox + 4, oy - totalH + 1, ox + totalW - 4, oy - totalH + 1)
 
-    const drawKey = (x, y, label, alpha = 0.75) => {
-      // Key cap body
-      gfx.fillStyle(0x1a1a2e, 0.55)
-      gfx.fillRoundedRect(x, y, KS, KS, 2.5)
-      // Border
-      gfx.lineStyle(1, 0xffffff, 0.22)
-      gfx.strokeRoundedRect(x, y, KS, KS, 2.5)
-      // Top highlight edge (glass sheen)
-      gfx.lineStyle(1, 0xffffff, 0.18)
+    const drawKey = (x, y, label) => {
+      gfx.fillStyle(0x111122, 0.60)
+      gfx.fillRoundedRect(x, y, KS, KS, 2)
+      gfx.lineStyle(1, 0xffffff, 0.20)
+      gfx.strokeRoundedRect(x, y, KS, KS, 2)
+      gfx.lineStyle(1, 0xffffff, 0.14)
       gfx.lineBetween(x + 2, y + 1, x + KS - 2, y + 1)
-      // Label text centred on key
       this.add.text(x + KS / 2, y + KS / 2, label, {
-        fontSize: '8px', fontFamily: 'monospace', color: '#ffffff',
-      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(alpha)
+        fontSize: '8px', fontFamily: 'monospace', color: '#e8e8e8',
+      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.82)
     }
 
-    // ── Arrow key cluster ──
-    // Top row: ↑ centred (col 1)
+    // ── Arrow keys ──
     const ax = ox + PAD
     const ay = oy - totalH + PAD
 
-    drawKey(ax + KS + KG,        ay,            '↑')            // up
-    drawKey(ax,                  ay + KS + KG,  '←')            // left
-    drawKey(ax + KS + KG,        ay + KS + KG,  '↓')            // down
-    drawKey(ax + (KS + KG) * 2,  ay + KS + KG,  '→')            // right
-
-    // MOVE label under arrow cluster
-    this.add.text(ax + arrowW / 2, ay + arrowH + 5, 'MOVE', {
-      fontSize: '7px', fontFamily: 'monospace', color: '#aaaaaa',
-    }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.55)
+    //   row 0: ↑ at col 1
+    drawKey(ax + KS + KG,           ay,          '↑')
+    //   row 1: ← ↓ →
+    drawKey(ax,                     ay + KS + KG, '←')
+    drawKey(ax + KS + KG,           ay + KS + KG, '↓')
+    drawKey(ax + (KS + KG) * 2,    ay + KS + KG, '→')
 
     // ── Thin divider ──
-    const divX = ax + arrowW + sepW / 2
-    gfx.lineStyle(1, 0xffffff, 0.08)
-    gfx.lineBetween(divX, oy - totalH + PAD + 3, divX, oy - PAD - lblH - 3)
+    const divX = ox + PAD + arrowW + Math.floor(sepW / 2)
+    gfx.lineStyle(1, 0xffffff, 0.07)
+    gfx.lineBetween(divX, oy - totalH + PAD + 2, divX, oy - PAD - 2)
 
-    // ── Action keys (Z, X, A) ──
+    // ── Action keys: Z X A — vertically centred in the container ──
     const bx = ax + arrowW + sepW
-    const by = ay + KS / 2 + 1   // vertically centred with arrow cluster
+    const by = ay + Math.floor((arrowH - KS) / 2)   // centred vertically
 
-    const actions = [
-      { lbl: 'Z', sub: 'PUNCH' },
-      { lbl: 'X', sub: 'KICK'  },
-      { lbl: 'A', sub: 'SPEC'  },
-    ]
-    actions.forEach(({ lbl, sub }, i) => {
-      const kx = bx + i * (KS + KG)
-      drawKey(kx, by, lbl)
-      this.add.text(kx + KS / 2, by + KS + 4, sub, {
-        fontSize: '6px', fontFamily: 'monospace', color: '#aaaaaa',
-      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.50)
+    ;['Z', 'X', 'A'].forEach((lbl, i) => drawKey(bx + i * (KS + KG), by, lbl))
+
+    // Tiny labels under Z X A only (4 chars max, very dim)
+    const sublabels = ['PUN', 'KIK', 'SP']
+    sublabels.forEach((sub, i) => {
+      this.add.text(bx + i * (KS + KG) + KS / 2, by + KS + 3, sub, {
+        fontSize: '5px', fontFamily: 'monospace', color: '#cccccc',
+      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.38)
     })
   }
 
