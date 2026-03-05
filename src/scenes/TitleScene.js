@@ -66,7 +66,11 @@ export default class TitleScene extends Phaser.Scene {
         this.sound.play('sfx-press-start', { volume: 0.85 })
       }
 
-      // Title music — store on game so StoryScene can stop it before game begins
+      // Title music — destroy any previous instance before creating (handles re-entry from GameOver)
+      if (this.game._titleMusic) {
+        this.game._titleMusic.destroy()
+        this.game._titleMusic = null
+      }
       if (this.cache.audio.exists('music-title')) {
         const music = this.sound.add('music-title', { loop: true, volume: 0.5 })
         music.play()

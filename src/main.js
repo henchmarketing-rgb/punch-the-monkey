@@ -13,6 +13,8 @@ const config = {
   width:  1440,
   height: 810,
   backgroundColor: '#07061a',
+  pixelArt: true,          // nearest-neighbour filtering — eliminates sprite frame bleed
+  roundPixels: true,       // snap to integer pixels — prevents sub-pixel shimmer
   scale: {
     mode:       Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

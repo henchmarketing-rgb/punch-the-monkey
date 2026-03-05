@@ -8,13 +8,14 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('punch-attack',  'assets/sprites/punch-attack.png',  { frameWidth: 225, frameHeight: 240 })
     this.load.spritesheet('punch-kick',    'assets/sprites/punch-kick.png',    { frameWidth: 219, frameHeight: 240 })
     this.load.spritesheet('punch-hurt',    'assets/sprites/punch-hurt.png',    { frameWidth: 201, frameHeight: 240 })
-    this.load.spritesheet('punch-special', 'assets/sprites/punch-special.png', { frameWidth: 560, frameHeight: 475 })
+    this.load.spritesheet('punch-special', 'assets/sprites/punch-special.png', { frameWidth: 312, frameHeight: 256 })
 
     // === GORILLA BOSS ===
     this.load.image('gorilla-idle',        'assets/sprites/gorilla-boss.png')
-    this.load.spritesheet('gorilla-walk',  'assets/sprites/gorilla-walk.png',   { frameWidth: 420, frameHeight: 360 })
+    this.load.spritesheet('gorilla-walk',  'assets/sprites/gorilla-walk.png',   { frameWidth: 316, frameHeight: 272 })
     this.load.spritesheet('gorilla-slam',  'assets/sprites/gorilla-slam.png',   { frameWidth: 393, frameHeight: 390 })
     this.load.spritesheet('gorilla-attack','assets/sprites/gorilla-attack.png', { frameWidth: 390, frameHeight: 360 })
+    this.load.spritesheet('gorilla-chest', 'assets/sprites/gorilla-chest.png',  { frameWidth: 324, frameHeight: 312 })
 
     // === MACAQUE GRUNT ===
     this.load.spritesheet('macaque-walk',   'assets/sprites/macaque-walk.png',   { frameWidth: 270, frameHeight: 300 })
@@ -87,9 +88,10 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'punch-hurt',    frames: anims.generateFrameNumbers('punch-hurt',    { start: 0, end: 1 }), frameRate: 8,  repeat: 0  })
     anims.create({ key: 'punch-special', frames: anims.generateFrameNumbers('punch-special', { start: 0, end: 2 }), frameRate: 8,  repeat: 0  })
 
-    anims.create({ key: 'gorilla-walk',   frames: anims.generateFrameNumbers('gorilla-walk',   { start: 0, end: 3 }), frameRate: 6, repeat: -1 })
+    anims.create({ key: 'gorilla-walk',   frames: anims.generateFrameNumbers('gorilla-walk',   { start: 0, end: 2 }), frameRate: 6, repeat: -1 })
     anims.create({ key: 'gorilla-slam',   frames: anims.generateFrameNumbers('gorilla-slam',   { start: 0, end: 2 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'gorilla-attack', frames: anims.generateFrameNumbers('gorilla-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
+    anims.create({ key: 'gorilla-chest',  frames: anims.generateFrameNumbers('gorilla-chest',  { start: 0, end: 2 }), frameRate: 8, repeat: -1 })
 
     anims.create({ key: 'macaque-walk',   frames: anims.generateFrameNumbers('macaque-walk',   { start: 0, end: 3 }), frameRate: 7, repeat: -1 })
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
@@ -104,13 +106,13 @@ export default class BootScene extends Phaser.Scene {
     // Boundary pixels are transparent, so inset causes zero visible content loss.
     const sheetsToFix = [
       'punch-walk','punch-attack','punch-kick','punch-hurt','punch-special',
-      'gorilla-walk','gorilla-slam','gorilla-attack',
+      'gorilla-walk','gorilla-slam','gorilla-attack','gorilla-chest',
       'macaque-walk','macaque-attack','macaque-hurt',
       'hit-effects','boss-shockwave','boss-fx-ring','boss-fx-fire',
     ]
     // Force NEAREST-neighbour filtering on gorilla textures (belt + suspenders on top of pixelArt:true)
     // Prevents sub-pixel bilinear bleed when the boss is scaled to 1.33×
-    ;['gorilla-walk','gorilla-slam','gorilla-attack'].forEach(key => {
+    ;['gorilla-walk','gorilla-slam','gorilla-attack','gorilla-chest'].forEach(key => {
       if (this.textures.exists(key)) {
         this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST)
       }

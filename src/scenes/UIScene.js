@@ -2,8 +2,9 @@ export default class UIScene extends Phaser.Scene {
   constructor() { super('UI') }
 
   init(data) {
-    this.levelData = data.levelData
-    this.playerRef = data.player
+    this.levelData  = data.levelData
+    this.playerRef  = data.player
+    this.initLives  = data.lives !== undefined ? data.lives : 3
   }
 
   create() {
@@ -74,6 +75,19 @@ export default class UIScene extends Phaser.Scene {
     }
 
     // "SP" label
+    // ── LIVES (❤ icons below SP bar) ──
+    const LIVES_Y = SPC_Y + 18
+    this.livesIcons = []
+    for (let i = 0; i < 3; i++) {
+      const icon = this.add.text(BAR_X + i * 20, LIVES_Y, '❤', {
+        fontSize: '13px', fontFamily: 'monospace', color: '#c42020',
+        stroke: '#0a0804', strokeThickness: 2,
+      }).setOrigin(0, 0.5).setDepth(101)
+      this.livesIcons.push(icon)
+    }
+    // seed from launch data
+    this.livesIcons.forEach((ic, i) => ic.setAlpha(i < this.initLives ? 1 : 0.18))
+
     this.add.text(BAR_X - 46, SPC_Y, 'SP', {
       fontSize: '11px', fontFamily: 'monospace', color: '#c49020', stroke: '#0a0804', strokeThickness: 2
     }).setOrigin(0.5).setDepth(103)
@@ -106,26 +120,65 @@ export default class UIScene extends Phaser.Scene {
     // ── PAUSE OVERLAY ──
     this.isPaused = false
     this.pauseGroup = this.add.container(width / 2, height / 2).setDepth(200).setVisible(false)
-    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0.5)
-    const card    = this.add.rectangle(0, 0, 500, 280, 0x1a0a2e).setOrigin(0.5)
-    card.setStrokeStyle(2, 0xff8c00)
-    const pauseTitle = this.add.text(0, -95, 'PAUSED', {
-      fontSize: '28px', fontFamily: 'monospace', color: '#ff8c00'
+
+    // Dark jungle overlay
+    const pOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.82).setOrigin(0.5)
+
+    // Wood/bark card
+    const pCard = this.add.rectangle(0, 0, 480, 290, 0x1a0e05).setOrigin(0.5)
+    pCard.setStrokeStyle(3, 0x3da820)
+
+    // Inner accent border (vine green inset line)
+    const pInner = this.add.rectangle(0, 0, 464, 274, 0x000000, 0).setOrigin(0.5)
+    pInner.setStrokeStyle(1, 0x2a6a10)
+
+    // Leaf corner decorations (Graphics inside container)
+    const pGfx = this.add.graphics()
+    const leafColor = 0x3da820
+    const leafDark  = 0x2a6a10
+    // Top-left
+    pGfx.fillStyle(leafColor, 0.85); pGfx.fillEllipse(-224, -128, 24, 11)
+    pGfx.fillStyle(leafDark,  0.85); pGfx.fillEllipse(-214, -118, 18, 9)
+    pGfx.lineStyle(2, 0x4a8a18, 1); pGfx.lineBetween(-232, -120, -208, -132)
+    // Top-right
+    pGfx.fillStyle(leafColor, 0.85); pGfx.fillEllipse(224, -128, 24, 11)
+    pGfx.fillStyle(leafDark,  0.85); pGfx.fillEllipse(214, -118, 18, 9)
+    pGfx.lineBetween(232, -120, 208, -132)
+    // Bottom corners (mirrored)
+    pGfx.fillStyle(leafColor, 0.85); pGfx.fillEllipse(-224, 128, 24, 11)
+    pGfx.fillStyle(leafDark,  0.85); pGfx.fillEllipse(-214, 118, 18, 9)
+    pGfx.fillStyle(leafColor, 0.85); pGfx.fillEllipse(224, 128, 24, 11)
+    pGfx.fillStyle(leafDark,  0.85); pGfx.fillEllipse(214, 118, 18, 9)
+
+    // "PAUSED" title
+    const pauseTitle = this.add.text(0, -100, '— PAUSED —', {
+      fontSize: '26px', fontFamily: 'monospace', color: '#8acc44',
+      stroke: '#0a0804', strokeThickness: 3,
     }).setOrigin(0.5)
 
+    // Divider vine
+    const pDiv = this.add.graphics()
+    pDiv.lineStyle(1, 0x3da820, 0.6); pDiv.lineBetween(-180, -72, 180, -72)
+
     // Resume button
-    const resumeBtn = this.add.rectangle(0, -20, 280, 48, 0x2a1a4a).setOrigin(0.5).setInteractive()
-    const resumeTxt = this.add.text(0, -20, '▶  RESUME', { fontSize: '16px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5)
-    resumeBtn.on('pointerover',  () => resumeBtn.setFillStyle(0x4a2a6a))
-    resumeBtn.on('pointerout',   () => resumeBtn.setFillStyle(0x2a1a4a))
+    const resumeBtn = this.add.rectangle(0, -16, 280, 46, 0x1a3a08).setOrigin(0.5).setInteractive()
+    resumeBtn.setStrokeStyle(1, 0x4a8a18)
+    const resumeTxt = this.add.text(0, -16, '▶  RESUME', {
+      fontSize: '15px', fontFamily: 'monospace', color: '#c8f080', stroke: '#0a0804', strokeThickness: 2
+    }).setOrigin(0.5)
+    resumeBtn.on('pointerover',  () => resumeBtn.setFillStyle(0x2a5a10))
+    resumeBtn.on('pointerout',   () => resumeBtn.setFillStyle(0x1a3a08))
     resumeBtn.on('pointerdown',  () => this.togglePause())
 
     // Quit button
-    const quitBtn  = this.add.rectangle(0, 50, 280, 48, 0x2a1a4a).setOrigin(0.5).setInteractive()
-    const quitTxt  = this.add.text(0, 50, '✕  QUIT TO TITLE', { fontSize: '16px', fontFamily: 'monospace', color: '#ff6666' }).setOrigin(0.5)
-    quitBtn.on('pointerover', () => quitBtn.setFillStyle(0x4a1a1a))
-    quitBtn.on('pointerout',  () => quitBtn.setFillStyle(0x2a1a4a))
-    quitBtn.on('pointerdown', () => {
+    const quitBtn  = this.add.rectangle(0, 48, 280, 46, 0x3a0e08).setOrigin(0.5).setInteractive()
+    quitBtn.setStrokeStyle(1, 0x7a2a18)
+    const quitTxt  = this.add.text(0, 48, '✕  QUIT TO TITLE', {
+      fontSize: '15px', fontFamily: 'monospace', color: '#e06050', stroke: '#0a0804', strokeThickness: 2
+    }).setOrigin(0.5)
+    quitBtn.on('pointerover',  () => quitBtn.setFillStyle(0x5a1a10))
+    quitBtn.on('pointerout',   () => quitBtn.setFillStyle(0x3a0e08))
+    quitBtn.on('pointerdown',  () => {
       const g = this.scene.get('Game')
       if (g.music) g.music.stop()
       this.scene.stop('Game')
@@ -133,12 +186,20 @@ export default class UIScene extends Phaser.Scene {
       this.scene.start('Title')
     })
 
-    this.pauseGroup.add([overlay, card, pauseTitle, resumeBtn, resumeTxt, quitBtn, quitTxt])
+    // Key hint
+    const keyHint = this.add.text(0, 118, 'P or ESC to resume', {
+      fontSize: '10px', fontFamily: 'monospace', color: '#4a7a18',
+    }).setOrigin(0.5)
+
+    this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, keyHint])
+
+    // ── KEY LEGEND (bottom left, glass style) ──
+    this.createKeyLegend()
 
     // ── PAUSE BUTTON (bottom right) ──
     const pauseBtn = this.add.text(width - 20, height - 14, '⏸ PAUSE', {
-      fontSize: '12px', fontFamily: 'monospace', color: '#aaaaaa',
-      backgroundColor: '#00000066', padding: { x: 8, y: 4 }
+      fontSize: '12px', fontFamily: 'monospace', color: '#8acc44',
+      backgroundColor: '#1a0e0599', padding: { x: 8, y: 4 }
     }).setOrigin(1, 1).setDepth(100).setInteractive()
     pauseBtn.on('pointerdown', () => this.togglePause())
     this.pauseBtn = pauseBtn
@@ -225,7 +286,7 @@ export default class UIScene extends Phaser.Scene {
     game.events.once('player-ko', () => stopLowHealthEffect(), this)
 
     // ── ADVANCE PROMPT (walk-to-right arrow) ──
-    this.advancePrompt = this.add.text(width - 28, height / 2, '▶▶  ADVANCE', {
+    this.advancePrompt = this.add.text(width - 28, height / 2, '▶▶', {
       fontSize: '16px', fontFamily: 'monospace', color: '#ffdd88',
       stroke: '#000000', strokeThickness: 3,
       backgroundColor: '#00000088', padding: { x: 12, y: 6 },
@@ -257,26 +318,33 @@ export default class UIScene extends Phaser.Scene {
       this.bossBar.width = Math.floor(this.bossMaxW * pct)
     }, this)
 
+    game.events.on('lives-update', (remaining) => {
+      this.livesIcons.forEach((ic, i) => ic.setAlpha(i < remaining ? 1 : 0.18))
+    })
+
     game.events.on('boss-defeated', () => {
       this.bossBarGroup.setVisible(false)
     }, this)
   }
 
+  shutdown() {
+    // Kill low-health repeating timer and tween so they don't fire after scene ends
+    if (this._lowHealthTimer) { this._lowHealthTimer.destroy(); this._lowHealthTimer = null }
+    if (this._lowHealthTween) { this._lowHealthTween.stop();   this._lowHealthTween = null }
+    this._lowHealthActive = false
+    this._spcLit = -1
+  }
+
   update() {
-    // Drive bamboo special segments from player cooldown
+    // Drive bamboo special segments — lightweight: alpha only, early-exit if unchanged
     const player = this.scene.get('Game')?.player
     if (!player || !this.spcSegments?.length) return
-    const pct = player.specialCooldown <= 0 ? 1 : 1 - Math.min(1, player.specialCooldown / 5000)
-    const lit = pct * this.spcSegments.length
-    this.spcSegments.forEach((seg, i) => {
-      if (i < Math.floor(lit)) {
-        seg.setAlpha(1).setFillStyle(0xd4a020)         // fully charged — bright gold
-      } else if (i === Math.floor(lit) && lit % 1 > 0) {
-        seg.setAlpha(0.3 + (lit % 1) * 0.7).setFillStyle(0xa87818)  // partial
-      } else {
-        seg.setAlpha(0.15).setFillStyle(0x6a4a08)      // empty — dim
-      }
-    })
+    const lit = player.specialCooldown <= 0
+      ? this.spcSegments.length
+      : Math.floor((1 - Math.min(1, player.specialCooldown / 5000)) * this.spcSegments.length)
+    if (lit === this._spcLit) return   // nothing changed — skip entirely
+    this._spcLit = lit
+    this.spcSegments.forEach((seg, i) => seg.setAlpha(i < lit ? 1 : 0.18))
   }
 
   createTouchControls() {
@@ -313,6 +381,90 @@ export default class UIScene extends Phaser.Scene {
     makeAct(ACT.x,      ACT.y,      'PUNCH', 0xff6600, 'punch')
     makeAct(ACT.x + 90, ACT.y,      'KICK',  0x2266ff, 'kick')
     makeAct(ACT.x + 45, ACT.y - 75, 'SPEC',  0x8800cc, 'special')
+  }
+
+  createKeyLegend() {
+    const { height } = this.scale
+    const KS  = 17    // key cap size (px)
+    const KG  = 3     // gap between keys
+    const PAD = 7     // container padding
+    const DEPTH = 106
+
+    // Container anchor — bottom left
+    const ox = 12
+    const oy = height - 12
+
+    // Layout measurements
+    const arrowW  = 3 * (KS + KG) - KG   // 3 cols
+    const arrowH  = 2 * (KS + KG) - KG   // 2 rows
+    const actW    = 3 * (KS + KG) - KG
+    const sepW    = 10
+    const lblH    = 11                    // label row height
+    const totalW  = arrowW + sepW + actW + PAD * 2
+    const totalH  = arrowH + lblH + 6 + PAD * 2
+
+    // Glass backing
+    const gfx = this.add.graphics().setDepth(DEPTH)
+    gfx.fillStyle(0x080808, 0.30)
+    gfx.fillRoundedRect(ox, oy - totalH, totalW, totalH, 5)
+    gfx.lineStyle(1, 0xffffff, 0.13)
+    gfx.strokeRoundedRect(ox, oy - totalH, totalW, totalH, 5)
+    // top glass sheen line
+    gfx.lineStyle(1, 0xffffff, 0.10)
+    gfx.lineBetween(ox + 5, oy - totalH + 1, ox + totalW - 5, oy - totalH + 1)
+
+    const drawKey = (x, y, label, alpha = 0.75) => {
+      // Key cap body
+      gfx.fillStyle(0x1a1a2e, 0.55)
+      gfx.fillRoundedRect(x, y, KS, KS, 2.5)
+      // Border
+      gfx.lineStyle(1, 0xffffff, 0.22)
+      gfx.strokeRoundedRect(x, y, KS, KS, 2.5)
+      // Top highlight edge (glass sheen)
+      gfx.lineStyle(1, 0xffffff, 0.18)
+      gfx.lineBetween(x + 2, y + 1, x + KS - 2, y + 1)
+      // Label text centred on key
+      this.add.text(x + KS / 2, y + KS / 2, label, {
+        fontSize: '8px', fontFamily: 'monospace', color: '#ffffff',
+      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(alpha)
+    }
+
+    // ── Arrow key cluster ──
+    // Top row: ↑ centred (col 1)
+    const ax = ox + PAD
+    const ay = oy - totalH + PAD
+
+    drawKey(ax + KS + KG,        ay,            '↑')            // up
+    drawKey(ax,                  ay + KS + KG,  '←')            // left
+    drawKey(ax + KS + KG,        ay + KS + KG,  '↓')            // down
+    drawKey(ax + (KS + KG) * 2,  ay + KS + KG,  '→')            // right
+
+    // MOVE label under arrow cluster
+    this.add.text(ax + arrowW / 2, ay + arrowH + 5, 'MOVE', {
+      fontSize: '7px', fontFamily: 'monospace', color: '#aaaaaa',
+    }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.55)
+
+    // ── Thin divider ──
+    const divX = ax + arrowW + sepW / 2
+    gfx.lineStyle(1, 0xffffff, 0.08)
+    gfx.lineBetween(divX, oy - totalH + PAD + 3, divX, oy - PAD - lblH - 3)
+
+    // ── Action keys (Z, X, A) ──
+    const bx = ax + arrowW + sepW
+    const by = ay + KS / 2 + 1   // vertically centred with arrow cluster
+
+    const actions = [
+      { lbl: 'Z', sub: 'PUNCH' },
+      { lbl: 'X', sub: 'KICK'  },
+      { lbl: 'A', sub: 'SPEC'  },
+    ]
+    actions.forEach(({ lbl, sub }, i) => {
+      const kx = bx + i * (KS + KG)
+      drawKey(kx, by, lbl)
+      this.add.text(kx + KS / 2, by + KS + 4, sub, {
+        fontSize: '6px', fontFamily: 'monospace', color: '#aaaaaa',
+      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.50)
+    })
   }
 
   togglePause() {

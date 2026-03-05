@@ -6,7 +6,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this)
     this.body.setSize(72, 150).setOffset(24, 42)
     // Base scale for GameScene depth system
-    this._baseDisplayScale = 1.0
+    this._baseDisplayScale = config.displayScale ?? 1.0
 
     this.hp       = config.hp     || 40
     this.maxHp    = this.hp
@@ -46,7 +46,10 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     if (!this.target) { this.body.setVelocity(0, 0); return }
 
     const dist = Phaser.Math.Distance.Between(this.x, this.y, this.target.x, this.target.y)
-    this.setFlipX(this.target.x > this.x)
+    this.setFlipX(this.target.x < this.x)
+
+    // Don't interrupt a mid-swing attack animation
+    if (this.aiState === 'attack') return
 
     // Always chase — no patrol fallback, no lingering off-screen
     if (dist > 130) {
@@ -81,6 +84,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
 
   takeHit(damage) {
     if (this.aiState === 'ko') return
+    if (this.hurtTimer > 0) return   // i-frames: can't be hit again during stagger
     this.hp -= damage
     this.hurtTimer = 350
 
@@ -100,6 +104,10 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     } else {
       this.aiState = 'hurt'
       if (this.hurtAnim && this.anims.exists(this.hurtAnim)) this.play(this.hurtAnim)
+      // Hit-impact thud — reuse punch SFX at low volume as enemy hurt confirmation
+      if (this.type !== 'boss' && this.scene.cache.audio.exists('sfx-punch')) {
+        this.scene.sound.play('sfx-punch', { volume: 0.3, detune: Phaser.Math.Between(-200, 200) })
+      }
       if (this.scene) this.scene.events.emit('enemy-hurt', this)
     }
   }

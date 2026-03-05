@@ -17,7 +17,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     // all appear the same visual size regardless of frame dimensions.
     this._idleNaturalH  = 240   // height of punch-idle source image
     this._walkNaturalH  = 240   // frameHeight of walk/attack/kick/hurt sheets
-    this._specNaturalH  = 475   // frameHeight of special sheet (taller canvas)
+    this._specNaturalH  = 256   // frameHeight of special sheet
     this._applyScale('normal')
     // Base scale used by GameScene's depth-scaling system
     this._baseDisplayScale = PLAYER_DISPLAY_H / this._walkNaturalH

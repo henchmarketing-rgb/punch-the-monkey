@@ -10,6 +10,7 @@ export default class GameScene extends Phaser.Scene {
     this.levelIndex     = (data.level || 1) - 1
     this.levelData      = LEVELS[this.levelIndex] || LEVELS[0]
     this.score          = data.score || 0
+    this.lives          = data.lives !== undefined ? data.lives : 3
     this.wave           = 1
     this.bossSpawned    = false
     this.awaitingAdvance = false   // true after all enemies cleared on non-boss levels
@@ -22,8 +23,9 @@ export default class GameScene extends Phaser.Scene {
     const worldW = this.worldW
 
     // Background pinned to camera at native resolution — no stretching, no stitching
+    // Background image is exactly worldW×height — scrolls naturally with the camera
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo-fallback'
-    this.bg = this.add.image(0, 0, bgKey).setOrigin(0, 0).setDisplaySize(width, height).setScrollFactor(0)
+    this.bg = this.add.image(0, 0, bgKey).setOrigin(0, 0).setScrollFactor(1)
 
     // Walk band — top = max "back" (floor level in background art ~45%)
     // Bottom = close to camera. Range ~389px — enough evasion depth without going into sky.
@@ -38,7 +40,7 @@ export default class GameScene extends Phaser.Scene {
     // Player starts in the left quarter, camera follows with world bounds clamping
     this.player = new Player(this, width * 0.15, height * 0.80)
     this.player.body.setCollideWorldBounds(true)
-    this.cameras.main.startFollow(this.player, true, 0.10, 0.05)
+    this.cameras.main.startFollow(this.player, true, 0.18, 0.12)
 
     // Enemies
     this.enemies = []
@@ -57,6 +59,8 @@ export default class GameScene extends Phaser.Scene {
     // Music
     const musicKey = this.levelData.musicKey
     if (musicKey && this.cache.audio.exists(musicKey)) {
+      // Defensively kill any lingering instances of this track before creating a new one
+      this.sound.getAll(musicKey).forEach(s => s.destroy())
       this.music = this.sound.add(musicKey, { loop: true, volume: 0.5 })
       this.music.play()
     }
@@ -69,7 +73,7 @@ export default class GameScene extends Phaser.Scene {
     })
 
     // UI
-    this.scene.launch('UI', { levelData: this.levelData, player: this.player })
+    this.scene.launch('UI', { levelData: this.levelData, player: this.player, lives: this.lives })
 
     // Camera fade in
     this.cameras.main.fadeIn(600, 0, 0, 0)
@@ -204,9 +208,18 @@ export default class GameScene extends Phaser.Scene {
     const { width, height } = this.scale
     const cam = this.cameras.main
     const PAN_TO   = 1400
-    const PAN_BACK = 1200
+    const ZOOM_IN  = 1400   // zoom in duration matches the pan
+    const HOLD     = 2600   // hold on the boss before text fades
+    const PAN_BACK = 1300
+    const ZOOM_OUT = 1300   // zoom back to normal alongside pan back
 
-    // Roar plays immediately as camera starts moving
+    // Swap to boss music immediately (don't play yet — plays after cinematic)
+    if (this.music) { this.music.destroy(); this.music = null }
+    if (this.cache.audio.exists('music-boss')) {
+      this.bossMusic = this.sound.add('music-boss', { loop: true, volume: 0.55 })
+    }
+
+    // Roar plays immediately as camera starts flying
     if (this.cache.audio.exists('sfx-boss-intro')) {
       this.sound.play('sfx-boss-intro', { volume: 0.85 })
     }
@@ -214,43 +227,58 @@ export default class GameScene extends Phaser.Scene {
     // Stop follow so we can pan freely
     cam.stopFollow()
 
-    // Phase 1 — camera flies to the gorilla
+    // Phase 1 — camera flies to the gorilla AND zooms in simultaneously
     cam.pan(boss.x, boss.y, PAN_TO, 'Sine.easeInOut')
+    cam.zoomTo(2.0, ZOOM_IN, 'Sine.easeInOut')
 
     this.time.delayedCall(PAN_TO, () => {
-      // Phase 2 — blackout majority of screen
+      // Phase 2 — dark vignette drops over the scene, boss fully lit in centre
       const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0)
         .setScrollFactor(0).setDepth(900)
 
       this.tweens.add({
-        targets: overlay, alpha: 0.88, duration: 380,
+        targets: overlay, alpha: 0.78, duration: 350,
         onComplete: () => {
-          cam.shake(700, 0.02)
+          // Heavy screen shake — gorilla pounds the ground
+          cam.shake(800, 0.025)
 
-          const line1 = this.add.text(width / 2, height / 2 - 54, 'BOSS FIGHT', {
-            fontSize: '52px', fontFamily: 'monospace', color: '#ff8c00',
-            stroke: '#000000', strokeThickness: 5,
+          // If chest-beat animation exists, play it now (drops in automatically once sprite is added)
+          if (boss.anims && this.anims.exists('gorilla-chest')) {
+            boss.play('gorilla-chest', true)
+          }
+
+          // Title cards
+          const line1 = this.add.text(width / 2, height / 2 - 64, 'BOSS FIGHT', {
+            fontSize: '56px', fontFamily: 'monospace', color: '#ff8c00',
+            stroke: '#000000', strokeThickness: 6,
           }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
 
-          const line2 = this.add.text(width / 2, height / 2 + 18, '— THE ANGRY GORILLA —', {
-            fontSize: '22px', fontFamily: 'monospace', color: '#ffffff',
+          const line2 = this.add.text(width / 2, height / 2 + 20, '— THE ANGRY GORILLA —', {
+            fontSize: '24px', fontFamily: 'monospace', color: '#ffffff',
             stroke: '#000000', strokeThickness: 3,
           }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
 
-          this.tweens.add({ targets: [line1, line2], alpha: 1, duration: 350 })
+          this.tweens.add({ targets: [line1, line2], alpha: 1, duration: 380 })
 
-          // Phase 3 — hold, then fade out and pan back to player
-          this.time.delayedCall(2300, () => {
+          // Phase 3 — hold on boss, then fade out overlay + titles
+          this.time.delayedCall(HOLD, () => {
             this.tweens.add({
-              targets: [overlay, line1, line2], alpha: 0, duration: 400,
+              targets: [overlay, line1, line2], alpha: 0, duration: 420,
               onComplete: () => {
                 overlay.destroy(); line1.destroy(); line2.destroy()
 
-                // Phase 4 — camera flies back to player
+                // Restore walk anim if chest-beat was playing
+                if (boss.walkAnim && this.anims.exists(boss.walkAnim)) {
+                  boss.play(boss.walkAnim, true)
+                }
+
+                // Phase 4 — zoom out + pan back to player simultaneously
                 cam.pan(this.player.x, this.player.y, PAN_BACK, 'Sine.easeInOut')
+                cam.zoomTo(1.0, ZOOM_OUT, 'Sine.easeInOut')
 
                 this.time.delayedCall(PAN_BACK, () => {
-                  cam.startFollow(this.player, true, 0.10, 0.05)
+                  cam.startFollow(this.player, true, 0.18, 0.12)
+                  if (this.bossMusic) this.bossMusic.play()
                   onComplete()
                 })
               },
@@ -283,22 +311,31 @@ export default class GameScene extends Phaser.Scene {
   spawnHitEffect(x, y) {
     if (!this.anims.exists('hit-spark')) return
     const spark = this.add.sprite(x, y, 'hit-effects', 0)
-    spark.setDepth(999).setScale(2)
+    spark.setDepth(999).setScale(0.75)   // 144px frame × 0.75 = 108px — proportional to 192px player
     spark.setBlendMode(Phaser.BlendModes.ADD)  // additive blend — no box, pure glow
     spark.play('hit-spark')
     spark.once('animationcomplete', () => spark.destroy())
   }
 
   onPlayerKO() {
-    if (this.music) this.music.stop()
-    this.time.delayedCall(1500, () => {
+    if (this.music) { this.music.destroy(); this.music = null }
+    if (this.bossMusic) { this.bossMusic.destroy(); this.bossMusic = null }
+    this.lives--
+    this.events.emit('lives-update', this.lives)
+    this.time.delayedCall(1800, () => {
       this.scene.stop('UI')
-      this.scene.start('GameOver', { score: this.score })
+      if (this.lives > 0) {
+        // Respawn — restart same level, keep score + remaining lives
+        this.scene.restart({ level: this.levelIndex + 1, score: this.score, lives: this.lives })
+      } else {
+        this.scene.start('GameOver', { score: this.score })
+      }
     })
   }
 
   nextLevel() {
-    if (this.music) this.music.stop()
+    if (this.music) { this.music.destroy(); this.music = null }
+    if (this.bossMusic) { this.bossMusic.destroy(); this.bossMusic = null }
     // Play level-complete sting
     if (this.cache.audio.exists('sfx-level-complete')) {
       this.sound.play('sfx-level-complete', { volume: 0.85 })
@@ -310,9 +347,15 @@ export default class GameScene extends Phaser.Scene {
       if (next >= LEVELS.length) {
         this.scene.start('Win', { score: this.score })
       } else {
-        this.scene.restart({ level: next + 1, score: this.score })
+        this.scene.restart({ level: next + 1, score: this.score, lives: this.lives })
       }
     })
+  }
+
+  // Called by Phaser when scene is stopped or restarted — destroy managed sounds
+  shutdown() {
+    if (this.music)     { this.music.destroy();     this.music     = null }
+    if (this.bossMusic) { this.bossMusic.destroy();  this.bossMusic = null }
   }
 
   // Depth scale: characters further back (lower Y) appear smaller.
@@ -322,7 +365,11 @@ export default class GameScene extends Phaser.Scene {
     const range = this.walkBottom - this.walkTop
     const t = Math.max(0, Math.min(1, (sprite.y - this.walkTop) / range))
     const depthScale = 0.55 + t * 0.45
-    sprite.setScale(sprite._baseDisplayScale * depthScale)
+    // During 'special' the frame is taller — use the sprite's own current base scale
+    // instead of overriding it (Player._applyScale sets the right scale for special frames)
+    if (sprite.state !== 'special') {
+      sprite.setScale(sprite._baseDisplayScale * depthScale)
+    }
     sprite.setDepth(sprite.y)
   }
 

@@ -129,9 +129,9 @@ export default class StoryScene extends Phaser.Scene {
   }
 
   goToGame() {
-    // Stop title music before level music takes over
-    if (this.game._titleMusic?.isPlaying) {
-      this.game._titleMusic.stop()
+    // Destroy title music before level music takes over
+    if (this.game._titleMusic) {
+      this.game._titleMusic.destroy()
       this.game._titleMusic = null
     }
     this.scene.start('Game', { level: 1 })

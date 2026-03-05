@@ -13,7 +13,8 @@ export default class Boss extends Enemy {
     })
 
     this.body.setSize(180, 300).setOffset(60, 60)
-    // Gorilla renders 1/3 bigger than base enemies
+    // Gorilla is 1.33× the base display scale — imposing over enemies (macaque = 1.0)
+    // Walk frame 316×272 @ 1.33 → ~420×362 display. Depth-scaled down at mid-screen.
     this._baseDisplayScale = 1.33
     this.phase = 1
     this.shockwaveTimer = 0
@@ -48,6 +49,7 @@ export default class Boss extends Enemy {
   doShockwave() {
     if (!this.scene) return
     const sw = this.scene.add.sprite(this.x, this.y + 100, 'boss-shockwave', 0)
+    sw.setScale(0.65)   // 414×240 frame × 0.65 ≈ 269×156px
     sw.setDepth(this.y - 1)
     sw.play('boss-shockwave')
     sw.once('animationcomplete', () => sw.destroy())
@@ -81,6 +83,12 @@ export default class Boss extends Enemy {
 
     scene.cameras.main.shake(800, 0.02)
     scene.time.timeScale = 0.25
+    // Boss death roar
+    if (scene.cache.audio.exists('sfx-boss-death')) {
+      scene.sound.play('sfx-boss-death', { volume: 0.9 })
+    }
+    // Stop and destroy boss music
+    if (scene.bossMusic) { scene.bossMusic.destroy(); scene.bossMusic = null }
 
     // Triple white flash
     let flashes = 0
@@ -96,7 +104,7 @@ export default class Boss extends Enemy {
             scene.time.timeScale = 1
             // Boss FX
             const fx = scene.add.sprite(this.x, this.y, 'boss-fx-fire', 0)
-            fx.setDepth(999).setScale(2)
+            fx.setDepth(999).setScale(1.0)   // 288px frame × 1.0 = 288px — big but contained
             fx.play('boss-fx-fire')
             fx.once('animationcomplete', () => fx.destroy())
             scene.events.emit('boss-defeated')

@@ -13,9 +13,9 @@ export const LEVELS = [
     bg: 'bg-zoo', musicKey: 'music-level1',
     bossAt: null,
     waves: [
-      { count: 3, hp: 42, speed: 100, damage: 8  },
-      { count: 4, hp: 42, speed: 110, damage: 9  },
-      { count: 4, hp: 42, speed: 120, damage: 10 },
+      { count: 3, hp: 45, speed: 100, damage: 8  },
+      { count: 4, hp: 45, speed: 110, damage: 9  },
+      { count: 4, hp: 45, speed: 120, damage: 10 },
     ],
   },
   {
@@ -23,9 +23,9 @@ export const LEVELS = [
     bg: 'bg-escape', musicKey: 'music-level2',
     bossAt: 'gorilla',
     waves: [
-      { count: 4, hp: 42, speed: 120, damage: 9  },
-      { count: 5, hp: 42, speed: 130, damage: 10 },
-      { count: 5, hp: 42, speed: 140, damage: 10 },
+      { count: 4, hp: 45, speed: 120, damage: 9  },
+      { count: 5, hp: 45, speed: 130, damage: 10 },
+      { count: 5, hp: 45, speed: 140, damage: 10 },
     ],
   },
   {
@@ -33,10 +33,10 @@ export const LEVELS = [
     bg: 'bg-street', musicKey: 'music-level1',
     bossAt: null,
     waves: [
-      { count: 5, hp: 42, speed: 140, damage: 10 },
-      { count: 6, hp: 42, speed: 150, damage: 10 },
-      { count: 6, hp: 42, speed: 155, damage: 10 },
-      { count: 7, hp: 42, speed: 160, damage: 10 },
+      { count: 5, hp: 45, speed: 140, damage: 10 },
+      { count: 6, hp: 45, speed: 150, damage: 10 },
+      { count: 6, hp: 45, speed: 155, damage: 10 },
+      { count: 7, hp: 45, speed: 160, damage: 10 },
     ],
   },
   {
@@ -44,9 +44,9 @@ export const LEVELS = [
     bg: 'bg-forest', musicKey: 'music-level2',
     bossAt: null,
     waves: [
-      { count: 6, hp: 42, speed: 155, damage: 10 },
-      { count: 7, hp: 42, speed: 165, damage: 10 },
-      { count: 8, hp: 42, speed: 170, damage: 10 },
+      { count: 6, hp: 45, speed: 155, damage: 10 },
+      { count: 7, hp: 45, speed: 165, damage: 10 },
+      { count: 8, hp: 45, speed: 170, damage: 10 },
     ],
   },
 ]

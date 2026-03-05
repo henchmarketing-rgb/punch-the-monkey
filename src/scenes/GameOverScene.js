@@ -35,15 +35,15 @@ export default class GameOverScene extends Phaser.Scene {
 
     // Buttons
     const makeBtn = (x, y, label, cb) => {
-      const bg = this.add.rectangle(x, y, 260, 54, 0x1a0a2e).setOrigin(0.5).setInteractive()
-      bg.setStrokeStyle(1, 0xff8c00)
-      const tx = this.add.text(x, y, label, { fontSize: '16px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5)
-      bg.on('pointerover',  () => bg.setFillStyle(0x2e1848))
-      bg.on('pointerout',   () => bg.setFillStyle(0x1a0a2e))
+      const bg = this.add.rectangle(x, y, 260, 54, 0x162808).setOrigin(0.5).setInteractive()
+      bg.setStrokeStyle(2, 0x3da820)
+      this.add.text(x, y, label, { fontSize: '16px', fontFamily: 'monospace', color: '#8acc44', stroke: '#0a0804', strokeThickness: 2 }).setOrigin(0.5)
+      bg.on('pointerover',  () => bg.setFillStyle(0x223a10))
+      bg.on('pointerout',   () => bg.setFillStyle(0x162808))
       bg.on('pointerdown',  cb)
     }
 
-    makeBtn(width / 2 - 160, height * 0.86, 'TRY AGAIN', () => this.scene.start('Game', { level: 1, score: 0 }))
+    makeBtn(width / 2 - 160, height * 0.86, 'TRY AGAIN', () => this.scene.start('Game', { level: 1, score: 0, lives: 3 }))
     makeBtn(width / 2 + 160, height * 0.86, 'TITLE',     () => this.scene.start('Title'))
 
     this.cameras.main.fadeIn(500, 0, 0, 0)
