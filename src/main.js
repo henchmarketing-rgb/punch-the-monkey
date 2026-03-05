@@ -8,21 +8,20 @@ import UIScene         from './scenes/UIScene.js'
 import GameOverScene   from './scenes/GameOverScene.js'
 import WinScene        from './scenes/WinScene.js'
 
-// Safari WebGL can silently fail — detect and fall back to Canvas
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+// Safari WebGL can silently fail — fall back to Canvas renderer
+const isSafari = typeof navigator !== 'undefined' &&
+  /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 
 const config = {
   type: isSafari ? Phaser.CANVAS : Phaser.AUTO,
   width:  1440,
   height: 810,
   backgroundColor: '#07061a',
-  pixelArt: true,          // nearest-neighbour filtering — eliminates sprite frame bleed
-  roundPixels: true,       // snap to integer pixels — prevents sub-pixel shimmer
+  pixelArt: true,
+  roundPixels: true,
   scale: {
     mode:       Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width:      1440,
-    height:     810,
   },
   physics: {
     default: 'arcade',

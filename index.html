@@ -67,10 +67,12 @@
   </div>
   <script type="module" src="/src/main.js"></script>
   <script>
-    // Try to lock orientation to landscape on supporting browsers
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {/* not supported — overlay handles it */})
-    }
+    try {
+      if (screen.orientation && typeof screen.orientation.lock === 'function') {
+        const p = screen.orientation.lock('landscape')
+        if (p && typeof p.catch === 'function') p.catch(() => {})
+      }
+    } catch (e) {}
   </script>
 </body>
 </html>
