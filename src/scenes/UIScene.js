@@ -186,10 +186,9 @@ export default class UIScene extends Phaser.Scene {
       this.scene.start('Title')
     })
 
-    // Key hint
     // Controls reference row
-    const isMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-    const ctrlItems = isMobile
+    const isPauseMenuMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
+    const ctrlItems = isPauseMenuMobile
       ? [{ icon: '🕹️', desc: 'Move' }, { icon: '🥊', desc: 'Punch' }, { icon: '🦵', desc: 'Kick' }, { icon: '⭐', desc: 'Special' }]
       : [{ icon: '↑←↓→', desc: 'Move' }, { icon: 'Z', desc: 'Punch' }, { icon: 'X', desc: 'Kick' }, { icon: 'A', desc: 'Special' }]
 
@@ -423,9 +422,7 @@ export default class UIScene extends Phaser.Scene {
   showControlsPopup() {
     const { width, height } = this.scale
     const DEPTH = 200
-    const isMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-
-    const items = isMobile
+    const items = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
       ? [
           { icon: '🕹️', desc: 'Move'    },
           { icon: '🥊', desc: 'Punch'   },
