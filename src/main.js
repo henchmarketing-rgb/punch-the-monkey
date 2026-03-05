@@ -8,8 +8,11 @@ import UIScene         from './scenes/UIScene.js'
 import GameOverScene   from './scenes/GameOverScene.js'
 import WinScene        from './scenes/WinScene.js'
 
+// Safari WebGL can silently fail — detect and fall back to Canvas
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
 const config = {
-  type: Phaser.AUTO,
+  type: isSafari ? Phaser.CANVAS : Phaser.AUTO,
   width:  1440,
   height: 810,
   backgroundColor: '#07061a',
@@ -20,8 +23,6 @@ const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width:      1440,
     height:     810,
-    // Expand canvas to fill the browser window on all screen sizes
-    parent:     document.body,
   },
   physics: {
     default: 'arcade',
