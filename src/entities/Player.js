@@ -9,13 +9,15 @@ export default class Player extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this)
 
     this.body.setSize(84, 180).setOffset(30, 54)
+    this.body.setDragX(0).setDragY(0)   // no drift — velocity must be zeroed explicitly
+    this.body.setMaxVelocity(400, 400)
     this.setDepth(10)
 
     // Pin the display height so idle (162×240) and walk (174×240) etc.
     // all appear the same visual size regardless of frame dimensions.
     this._idleNaturalH  = 240   // height of punch-idle source image
     this._walkNaturalH  = 240   // frameHeight of walk/attack/kick/hurt sheets
-    this._specNaturalH  = 384   // frameHeight of special sheet (taller canvas)
+    this._specNaturalH  = 475   // frameHeight of special sheet (taller canvas)
     this._applyScale('normal')
     // Base scale used by GameScene's depth-scaling system
     this._baseDisplayScale = PLAYER_DISPLAY_H / this._walkNaturalH
@@ -161,7 +163,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     if (this.scene.cache.audio.exists(sfxKey)) this.scene.sound.play(sfxKey, { volume: 0.7 })
 
     const range  = type === 'kick' ? 165 : 132
-    const damage = type === 'kick' ? this.attackDmg * 1.5 : this.attackDmg
+    const damage = type === 'kick' ? Math.floor(this.attackDmg * 1.5) : this.attackDmg
     this.scene.events.emit('player-attack', {
       x: this.x + (this.facingRight ? range * 0.8 : -range * 0.8),
       y: this.y, range, damage, type
@@ -201,6 +203,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
     this._resetRegen()
     this.hp -= damage
     this.hurtTimer = 600   // 600ms i-frames — survives multi-enemy pileups cleanly
+    this.body.setVelocity(0, 0)   // stop dead on hit — no uncontrolled sliding during i-frames
 
     if (this.hp <= 0) {
       this.hp = 0

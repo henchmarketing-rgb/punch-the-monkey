@@ -8,7 +8,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('punch-attack',  'assets/sprites/punch-attack.png',  { frameWidth: 225, frameHeight: 240 })
     this.load.spritesheet('punch-kick',    'assets/sprites/punch-kick.png',    { frameWidth: 219, frameHeight: 240 })
     this.load.spritesheet('punch-hurt',    'assets/sprites/punch-hurt.png',    { frameWidth: 201, frameHeight: 240 })
-    this.load.spritesheet('punch-special', 'assets/sprites/punch-special.png', { frameWidth: 144, frameHeight: 384 })
+    this.load.spritesheet('punch-special', 'assets/sprites/punch-special.png', { frameWidth: 560, frameHeight: 475 })
 
     // === GORILLA BOSS ===
     this.load.image('gorilla-idle',        'assets/sprites/gorilla-boss.png')
@@ -32,6 +32,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.audio('music-title',  'assets/audio/music-title.mp3')
     this.load.audio('music-level1', 'assets/audio/music-level1.mp3')
     this.load.audio('music-level2', 'assets/audio/music-level2.mp3')
+    this.load.audio('music-boss',   'assets/audio/music-boss.mp3')
     // SFX
     this.load.audio('sfx-punch',          'assets/audio/sfx-punch.wav')
     this.load.audio('sfx-kick',           'assets/audio/sfx-kick.mp3')
@@ -39,12 +40,13 @@ export default class BootScene extends Phaser.Scene {
     this.load.audio('sfx-health-low',     'assets/audio/sfx-health-low.wav')
     this.load.audio('sfx-press-start',    'assets/audio/sfx-press-start.wav')
     this.load.audio('sfx-player-death',   'assets/audio/sfx-player-death.wav')
-    this.load.audio('sfx-level-complete', 'assets/audio/sfx-level-complete.wav')
+    this.load.audio('sfx-level-complete', 'assets/audio/sfx-level-complete.mp3')
     this.load.audio('sfx-enemy-attack',   'assets/audio/sfx-enemy-attack.wav')
     this.load.audio('sfx-enemy-death',    'assets/audio/sfx-enemy-death.wav')
     this.load.audio('sfx-boss-attack',    'assets/audio/sfx-boss-attack.mp3')
     this.load.audio('sfx-boss-special',   'assets/audio/sfx-boss-special.mp3')
     this.load.audio('sfx-boss-intro',     'assets/audio/sfx-boss-intro.wav')
+    this.load.audio('sfx-boss-death',     'assets/audio/sfx-boss-death.wav')
 
     // === BACKGROUNDS ===
     this.load.image('bg-zoo',    'assets/backgrounds/bg-zoo.png')
@@ -83,7 +85,7 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'punch-attack',  frames: anims.generateFrameNumbers('punch-attack',  { start: 0, end: 2 }), frameRate: 12, repeat: 0  })
     anims.create({ key: 'punch-kick',    frames: anims.generateFrameNumbers('punch-kick',    { start: 0, end: 2 }), frameRate: 12, repeat: 0  })
     anims.create({ key: 'punch-hurt',    frames: anims.generateFrameNumbers('punch-hurt',    { start: 0, end: 1 }), frameRate: 8,  repeat: 0  })
-    anims.create({ key: 'punch-special', frames: anims.generateFrameNumbers('punch-special', { start: 0, end: 3 }), frameRate: 10, repeat: 0  })
+    anims.create({ key: 'punch-special', frames: anims.generateFrameNumbers('punch-special', { start: 0, end: 2 }), frameRate: 8,  repeat: 0  })
 
     anims.create({ key: 'gorilla-walk',   frames: anims.generateFrameNumbers('gorilla-walk',   { start: 0, end: 3 }), frameRate: 6, repeat: -1 })
     anims.create({ key: 'gorilla-slam',   frames: anims.generateFrameNumbers('gorilla-slam',   { start: 0, end: 2 }), frameRate: 8, repeat: 0  })
@@ -97,5 +99,35 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'boss-shockwave', frames: anims.generateFrameNumbers('boss-shockwave', { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
     anims.create({ key: 'boss-fx-ring',   frames: anims.generateFrameNumbers('boss-fx-ring',   { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
     anims.create({ key: 'boss-fx-fire',   frames: anims.generateFrameNumbers('boss-fx-fire',   { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
+
+    // ── UV inset: add 0.5px inset to all spritesheet frames to prevent sub-pixel bleed ──
+    // Boundary pixels are transparent, so inset causes zero visible content loss.
+    const sheetsToFix = [
+      'punch-walk','punch-attack','punch-kick','punch-hurt','punch-special',
+      'gorilla-walk','gorilla-slam','gorilla-attack',
+      'macaque-walk','macaque-attack','macaque-hurt',
+      'hit-effects','boss-shockwave','boss-fx-ring','boss-fx-fire',
+    ]
+    // Force NEAREST-neighbour filtering on gorilla textures (belt + suspenders on top of pixelArt:true)
+    // Prevents sub-pixel bilinear bleed when the boss is scaled to 1.33×
+    ;['gorilla-walk','gorilla-slam','gorilla-attack'].forEach(key => {
+      if (this.textures.exists(key)) {
+        this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST)
+      }
+    })
+
+    sheetsToFix.forEach(key => {
+      if (!this.textures.exists(key)) return
+      const tex = this.textures.get(key)
+      const tw  = tex.source[0].width
+      const th  = tex.source[0].height
+      const eu  = 0.5 / tw
+      const ev  = 0.5 / th
+      Object.values(tex.frames).forEach(f => {
+        if (f.name === '__BASE') return
+        f.u0 += eu; f.u1 -= eu
+        f.v0 += ev; f.v1 -= ev
+      })
+    })
   }
 }
