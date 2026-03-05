@@ -102,6 +102,14 @@ export default class UIScene extends Phaser.Scene {
       fontSize: '12px', fontFamily: 'monospace', color: '#d4a020', stroke: '#0a0804', strokeThickness: 2
     }).setOrigin(0.5).setDepth(100)
 
+    // ── RUNTIME TIMER (top right corner) ──
+    this._elapsed = 0
+    const timerBg = this.add.rectangle(width - 14, 14, 88, 22, 0x0d1a05, 0.82).setOrigin(1, 0).setDepth(100)
+    timerBg.setStrokeStyle(1, 0x3da820, 0.7)
+    this.timerText = this.add.text(width - 18, 24, '⏱ 00:00', {
+      fontSize: '10px', fontFamily: 'monospace', color: '#8acc44', stroke: '#0a0804', strokeThickness: 2
+    }).setOrigin(1, 0.5).setDepth(101)
+
     // ── BOSS HP BAR (top right — mirrors player bar) ──
     const BOSS_RIGHT = width - 60
     const BOSS_Y = BAR_Y
@@ -371,7 +379,16 @@ export default class UIScene extends Phaser.Scene {
     this._spcLit = -1
   }
 
-  update() {
+  update(time, delta) {
+    // ── Runtime timer ──
+    if (this.timerText && !this.isPaused) {
+      this._elapsed = (this._elapsed || 0) + delta
+      const secs = Math.floor(this._elapsed / 1000)
+      const mm   = String(Math.floor(secs / 60)).padStart(2, '0')
+      const ss   = String(secs % 60).padStart(2, '0')
+      this.timerText.setText(`⏱ ${mm}:${ss}`)
+    }
+
     // Drive bamboo special segments — lightweight: alpha only, early-exit if unchanged
     const player = this.scene.get('Game')?.player
     if (!player || !this.spcSegments?.length) return
