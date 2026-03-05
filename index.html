@@ -9,27 +9,34 @@
   <title>PUNCH-KUN 🐒</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%; height: 100%;
+    html {
+      height: 100%;
       background: #000;
-      overflow: hidden;
-      touch-action: none;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none; user-select: none;
     }
     body {
+      /* position:fixed locks the body to the true visible viewport on iOS Safari —
+         prevents the canvas from drifting below the fold */
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      /* iOS Safari full-height fix */
-      min-height: -webkit-fill-available;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
     }
     canvas {
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      /* prevent iOS rubber-band scroll on canvas */
       touch-action: none;
+      /* keep canvas within the fixed viewport */
+      max-width: 100%;
+      max-height: 100%;
     }
   </style>
 </head>
