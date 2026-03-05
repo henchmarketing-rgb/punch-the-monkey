@@ -193,9 +193,8 @@ export default class UIScene extends Phaser.Scene {
 
     this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, keyHint])
 
-    // ── KEY LEGEND (bottom left, glass style — keyboard only) ──
-    const isTouch = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-    if (!isTouch) this.createKeyLegend()
+    // ── CONTROLS POPUP (fades in then out at game start) ──
+    this.showControlsPopup()
 
     // ── PAUSE BUTTON (bottom right) ──
     const pauseBtn = this.add.text(width - 20, height - 14, '⏸ PAUSE', {
@@ -384,82 +383,105 @@ export default class UIScene extends Phaser.Scene {
     makeAct(ACT.x + 45, ACT.y - 75, 'SPEC',  0x8800cc, 'special')
   }
 
-  createKeyLegend() {
-    const { height } = this.scale
-    const KS    = 14   // key cap size
-    const KG    = 2    // gap between keys
-    const PAD   = 6    // container padding
-    const DEPTH = 106
+  showControlsPopup() {
+    const { width, height } = this.scale
+    const DEPTH = 200
+    const isMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
 
-    // Arrow cluster: 3 cols × 2 rows (↑ centred top, ← ↓ → bottom)
-    const arrowW = 3 * (KS + KG) - KG   // 46px
-    const arrowH = 2 * (KS + KG) - KG   // 30px
+    const items = isMobile
+      ? [
+          { icon: '🕹️', desc: 'Move'    },
+          { icon: '🥊', desc: 'Punch'   },
+          { icon: '🦵', desc: 'Kick'    },
+          { icon: '⭐', desc: 'Special' },
+        ]
+      : [
+          { icon: '↑←↓→', desc: 'Move'    },
+          { icon: 'Z',     desc: 'Punch'   },
+          { icon: 'X',     desc: 'Kick'    },
+          { icon: 'A',     desc: 'Special' },
+        ]
 
-    // Action keys: Z X A in one row (same row as arrows bottom row)
-    const sepW  = 9
-    const actW  = 3 * (KS + KG) - KG    // 46px
+    const cardW = 460, cardH = 200
+    const cx = width / 2, cy = height / 2
+    const all = []
 
-    const totalW = PAD + arrowW + sepW + actW + PAD   // ~121px
-    const totalH = PAD + arrowH + PAD                 // ~42px
+    // Overlay
+    const overlay = this.add.rectangle(cx, cy, width, height, 0x000000, 0.55)
+      .setScrollFactor(0).setDepth(DEPTH)
+    all.push(overlay)
 
-    // Anchor bottom-left
-    const ox = 12
-    const oy = height - 12
+    // Card
+    const card = this.add.graphics().setScrollFactor(0).setDepth(DEPTH + 1)
+    card.fillStyle(0x0f1a07, 0.97)
+    card.fillRoundedRect(cx - cardW / 2, cy - cardH / 2, cardW, cardH, 10)
+    card.lineStyle(2, 0x3da820, 0.9)
+    card.strokeRoundedRect(cx - cardW / 2, cy - cardH / 2, cardW, cardH, 10)
+    card.lineStyle(1, 0x2a6a10, 0.45)
+    card.strokeRoundedRect(cx - cardW / 2 + 5, cy - cardH / 2 + 5, cardW - 10, cardH - 10, 7)
+    all.push(card)
 
-    // ── Glass backing ──
-    const gfx = this.add.graphics().setDepth(DEPTH)
-    gfx.fillStyle(0x050508, 0.28)
-    gfx.fillRoundedRect(ox, oy - totalH, totalW, totalH, 4)
-    gfx.lineStyle(1, 0xffffff, 0.10)
-    gfx.strokeRoundedRect(ox, oy - totalH, totalW, totalH, 4)
-    // glass top sheen
-    gfx.lineStyle(1, 0xffffff, 0.08)
-    gfx.lineBetween(ox + 4, oy - totalH + 1, ox + totalW - 4, oy - totalH + 1)
+    // Title
+    all.push(this.add.text(cx, cy - cardH / 2 + 22, '— CONTROLS —', {
+      fontSize: '15px', fontFamily: 'monospace', color: '#8acc44',
+      stroke: '#0a0804', strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 2))
 
-    const drawKey = (x, y, label) => {
-      gfx.fillStyle(0x111122, 0.60)
-      gfx.fillRoundedRect(x, y, KS, KS, 2)
-      gfx.lineStyle(1, 0xffffff, 0.20)
-      gfx.strokeRoundedRect(x, y, KS, KS, 2)
-      gfx.lineStyle(1, 0xffffff, 0.14)
-      gfx.lineBetween(x + 2, y + 1, x + KS - 2, y + 1)
-      this.add.text(x + KS / 2, y + KS / 2, label, {
-        fontSize: '8px', fontFamily: 'monospace', color: '#e8e8e8',
-      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.82)
+    // Divider
+    const dg = this.add.graphics().setScrollFactor(0).setDepth(DEPTH + 2)
+    dg.lineStyle(1, 0x3da820, 0.3)
+    dg.lineBetween(cx - cardW / 2 + 24, cy - cardH / 2 + 40, cx + cardW / 2 - 24, cy - cardH / 2 + 40)
+    all.push(dg)
+
+    // Control items
+    const colW = cardW / items.length
+    items.forEach(({ icon, desc }, i) => {
+      const ix = cx - cardW / 2 + colW * i + colW / 2
+      const iy = cy - 8
+
+      const kg = this.add.graphics().setScrollFactor(0).setDepth(DEPTH + 2)
+      kg.fillStyle(0x1a3a08, 0.9)
+      kg.fillRoundedRect(ix - 26, iy - 30, 52, 38, 5)
+      kg.lineStyle(1, 0x4a8a18, 0.85)
+      kg.strokeRoundedRect(ix - 26, iy - 30, 52, 38, 5)
+      kg.lineStyle(1, 0x8acc44, 0.2)
+      kg.lineBetween(ix - 22, iy - 29, ix + 22, iy - 29)
+      all.push(kg)
+
+      all.push(this.add.text(ix, iy - 11, icon, {
+        fontSize: icon.length > 2 ? '12px' : '18px',
+        fontFamily: 'monospace', color: '#c8f080',
+        stroke: '#0a0804', strokeThickness: 2,
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 3))
+
+      all.push(this.add.text(ix, iy + 20, desc.toUpperCase(), {
+        fontSize: '10px', fontFamily: 'monospace', color: '#8acc44',
+        stroke: '#0a0804', strokeThickness: 2,
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 3))
+    })
+
+    // Hint
+    all.push(this.add.text(cx, cy + cardH / 2 - 16, 'tap anywhere or press any key to dismiss', {
+      fontSize: '9px', fontFamily: 'monospace', color: '#4a7a18',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 2))
+
+    // Fade in
+    all.forEach(o => o.setAlpha(0))
+    this.tweens.add({ targets: all, alpha: 1, duration: 400, ease: 'Sine.easeOut' })
+
+    const dismiss = () => {
+      this.tweens.add({
+        targets: all, alpha: 0, duration: 500, ease: 'Sine.easeIn',
+        onComplete: () => all.forEach(o => { if (o && o.destroy) o.destroy() }),
+      })
     }
 
-    // ── Arrow keys ──
-    const ax = ox + PAD
-    const ay = oy - totalH + PAD
-
-    //   row 0: ↑ at col 1
-    drawKey(ax + KS + KG,           ay,          '↑')
-    //   row 1: ← ↓ →
-    drawKey(ax,                     ay + KS + KG, '←')
-    drawKey(ax + KS + KG,           ay + KS + KG, '↓')
-    drawKey(ax + (KS + KG) * 2,    ay + KS + KG, '→')
-
-    // ── Thin divider ──
-    const divX = ox + PAD + arrowW + Math.floor(sepW / 2)
-    gfx.lineStyle(1, 0xffffff, 0.07)
-    gfx.lineBetween(divX, oy - totalH + PAD + 2, divX, oy - PAD - 2)
-
-    // ── Action keys: Z X A — vertically centred in the container ──
-    const bx = ax + arrowW + sepW
-    const by = ay + Math.floor((arrowH - KS) / 2)   // centred vertically
-
-    ;['Z', 'X', 'A'].forEach((lbl, i) => drawKey(bx + i * (KS + KG), by, lbl))
-
-    // Tiny labels under Z X A only (4 chars max, very dim)
-    const sublabels = ['PUN', 'KIK', 'SP']
-    sublabels.forEach((sub, i) => {
-      this.add.text(bx + i * (KS + KG) + KS / 2, by + KS + 3, sub, {
-        fontSize: '5px', fontFamily: 'monospace', color: '#cccccc',
-      }).setOrigin(0.5).setDepth(DEPTH + 1).setAlpha(0.38)
-    })
+    this.time.delayedCall(4500, dismiss)
+    this.input.once('pointerdown', dismiss)
+    this.input.keyboard.once('keydown', dismiss)
   }
 
-  togglePause() {
+    togglePause() {
     const game = this.scene.get('Game')
     this.isPaused = !this.isPaused
     this.pauseGroup.setVisible(this.isPaused)
