@@ -402,7 +402,7 @@ export default class UIScene extends Phaser.Scene {
           { icon: 'A',     desc: 'Special' },
         ]
 
-    const cardW = 460, cardH = 200
+    const cardW = 340, cardH = 155
     const cx = width / 2, cy = height / 2
     const all = []
 
@@ -423,7 +423,7 @@ export default class UIScene extends Phaser.Scene {
 
     // Title
     all.push(this.add.text(cx, cy - cardH / 2 + 22, '— CONTROLS —', {
-      fontSize: '15px', fontFamily: 'monospace', color: '#8acc44',
+      fontSize: '12px', fontFamily: 'monospace', color: '#8acc44',
       stroke: '#0a0804', strokeThickness: 3,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 2))
 
@@ -437,32 +437,32 @@ export default class UIScene extends Phaser.Scene {
     const colW = cardW / items.length
     items.forEach(({ icon, desc }, i) => {
       const ix = cx - cardW / 2 + colW * i + colW / 2
-      const iy = cy - 8
+      const iy = cy - 5
 
       const kg = this.add.graphics().setScrollFactor(0).setDepth(DEPTH + 2)
       kg.fillStyle(0x1a3a08, 0.9)
-      kg.fillRoundedRect(ix - 26, iy - 30, 52, 38, 5)
+      kg.fillRoundedRect(ix - 20, iy - 22, 40, 30, 4)
       kg.lineStyle(1, 0x4a8a18, 0.85)
-      kg.strokeRoundedRect(ix - 26, iy - 30, 52, 38, 5)
+      kg.strokeRoundedRect(ix - 20, iy - 22, 40, 30, 4)
       kg.lineStyle(1, 0x8acc44, 0.2)
-      kg.lineBetween(ix - 22, iy - 29, ix + 22, iy - 29)
+      kg.lineBetween(ix - 17, iy - 21, ix + 17, iy - 21)
       all.push(kg)
 
       all.push(this.add.text(ix, iy - 11, icon, {
-        fontSize: icon.length > 2 ? '12px' : '18px',
+        fontSize: icon.length > 2 ? '10px' : '14px',
         fontFamily: 'monospace', color: '#c8f080',
         stroke: '#0a0804', strokeThickness: 2,
       }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 3))
 
       all.push(this.add.text(ix, iy + 20, desc.toUpperCase(), {
-        fontSize: '10px', fontFamily: 'monospace', color: '#8acc44',
+        fontSize: '8px', fontFamily: 'monospace', color: '#8acc44',
         stroke: '#0a0804', strokeThickness: 2,
       }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 3))
     })
 
     // Hint
     all.push(this.add.text(cx, cy + cardH / 2 - 16, 'tap anywhere or press any key to dismiss', {
-      fontSize: '9px', fontFamily: 'monospace', color: '#4a7a18',
+      fontSize: '8px', fontFamily: 'monospace', color: '#4a7a18',
     }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 2))
 
     // Fade in
@@ -476,7 +476,7 @@ export default class UIScene extends Phaser.Scene {
       })
     }
 
-    this.time.delayedCall(4500, dismiss)
+    this.time.delayedCall(8000, dismiss)
     this.input.once('pointerdown', dismiss)
     this.input.keyboard.once('keydown', dismiss)
   }
