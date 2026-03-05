@@ -229,8 +229,8 @@ export default class UIScene extends Phaser.Scene {
 
     this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, ...ctrlObjs, keyHint])
 
-    // ── CONTROLS POPUP (fades in then out at game start) ──
-    this.showControlsPopup()
+    // ── CONTROLS POPUP (level 1 only) ──
+    if (this.levelData?.id === 1) this.showControlsPopup()
 
     // ── PAUSE BUTTON (bottom right) ──
     const pauseBtn = this.add.text(width - 20, height - 14, '⏸ PAUSE', {
