@@ -11,7 +11,7 @@ export default class GameScene extends Phaser.Scene {
     this.levelData      = LEVELS[this.levelIndex] || LEVELS[0]
     this.score          = data.score || 0
     this.lives          = data.lives !== undefined ? data.lives : 3
-    this.wave           = 1
+    this.wave           = 0   // advanceWave() increments before reading
     this.bossSpawned    = false
     this.awaitingAdvance = false   // true after all enemies cleared on non-boss levels
   }
@@ -45,7 +45,7 @@ export default class GameScene extends Phaser.Scene {
     // Enemies
     this.enemies = []
     this.boss    = null
-    this.spawnWave()
+    this.advanceWave()   // kicks off wave 1 (or boss if first entry)
 
     // Events (registered once here)
     this.events.on('player-attack',  this.handlePlayerAttack,  this)
@@ -79,9 +79,7 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.fadeIn(600, 0, 0, 0)
   }
 
-  spawnWave() {
-    const { width, height } = this.scale
-    const waveCfg = this.levelData.waves[this.wave - 1]
+  spawnWave(waveCfg) {
     if (!waveCfg) return
 
     const cam = this.cameras.main
@@ -93,8 +91,8 @@ export default class GameScene extends Phaser.Scene {
       this.time.delayedCall(i * 320, () => {
         if (!this.player?.active) { this.pendingSpawns = Math.max(0, this.pendingSpawns - 1); return }
 
-        // Spawn just off the world edges
-        const fromLeft = i % 3 === 2
+        // Alternate sides evenly — odd indices from left, even from right
+        const fromLeft = i % 2 === 1
         const spawnX = fromLeft ? -80 : this.worldW + 80
 
         const y = Phaser.Math.Between(this.walkTop + 40, this.walkBottom - 30)
@@ -170,37 +168,39 @@ export default class GameScene extends Phaser.Scene {
     this.score += 100
     this.events.emit('score-update', this.score)
 
-    // Wait until ALL enemies are cleared AND no more are still queued to spawn
+    // Wait until ALL enemies cleared and no more queued
     const activeEnemies = this.enemies.filter(e => e.active)
     if (activeEnemies.length > 0 || (this.pendingSpawns || 0) > 0) return
 
-    const totalWaves = this.levelData.waves.length
-    const hasMoreWaves = this.wave < totalWaves
+    this.advanceWave()
+  }
 
-    if (hasMoreWaves) {
-      // Advance to next wave — brief breather then enemies walk in from off-screen
-      this.wave++
-      this.time.delayedCall(1400, () => this.spawnWave())
-    } else if (this.levelData.bossAt && !this.bossSpawned) {
-      // All waves cleared — cinematic boss intro
-      this.bossSpawned = true
+  advanceWave() {
+    // Move to next entry in the waves array
+    this.wave++
+    const entry = this.levelData.waves[this.wave - 1]
+
+    if (!entry) {
+      // All wave entries done — level complete, player walks right
+      this.time.delayedCall(600, () => {
+        this.awaitingAdvance = true
+        this.events.emit('advance-prompt', true)
+      })
+      return
+    }
+
+    if (entry.boss) {
+      // Boss interlude
       this.time.delayedCall(700, () => {
-        // Freeze player during intro
-        if (this.player) {
-          this.player._frozen = true
-          this.player.body.setVelocity(0, 0)
-        }
+        if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
         const boss = this.spawnBoss()
         this.showBossIntro(boss, () => {
           if (this.player) this.player._frozen = false
         })
       })
     } else {
-      // No boss — player must walk to the right edge to advance
-      this.time.delayedCall(600, () => {
-        this.awaitingAdvance = true
-        this.events.emit('advance-prompt', true)
-      })
+      // Enemy wave — brief breather then spawn
+      this.time.delayedCall(1400, () => this.spawnWave(entry))
     }
   }
 
@@ -305,7 +305,15 @@ export default class GameScene extends Phaser.Scene {
     this.time.timeScale = 1
     this.score += 1000
     this.events.emit('score-update', this.score)
-    this.time.delayedCall(2000, () => this.nextLevel())
+    // Check if more waves follow after this boss entry
+    const nextEntry = this.levelData.waves[this.wave]  // wave is still pointing at current boss entry
+    this.time.delayedCall(2000, () => {
+      if (nextEntry) {
+        this.advanceWave()
+      } else {
+        this.nextLevel()
+      }
+    })
   }
 
   spawnHitEffect(x, y) {
