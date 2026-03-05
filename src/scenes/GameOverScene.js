@@ -15,9 +15,9 @@ export default class GameOverScene extends Phaser.Scene {
     this.add.rectangle(0, 0, width, height, 0x000000, 0.65).setOrigin(0, 0)
     this.add.rectangle(0, 0, width, 3, 0xff8c00, 0.7).setOrigin(0, 0)
 
-    // K.O. text
-    this.add.text(width / 2, 120, 'K.O.', {
-      fontSize: '80px', fontFamily: 'monospace', color: '#ff8c00',
+    // Game Over text
+    this.add.text(width / 2, 120, 'GAME OVER', {
+      fontSize: '72px', fontFamily: 'monospace', color: '#ff8c00',
       stroke: '#000000', strokeThickness: 4
     }).setOrigin(0.5)
 
