@@ -18,6 +18,10 @@ const config = {
   scale: {
     mode:       Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width:      1440,
+    height:     810,
+    // Expand canvas to fill the browser window on all screen sizes
+    parent:     document.body,
   },
   physics: {
     default: 'arcade',

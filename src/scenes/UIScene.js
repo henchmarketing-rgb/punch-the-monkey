@@ -193,8 +193,9 @@ export default class UIScene extends Phaser.Scene {
 
     this.pauseGroup.add([pOverlay, pCard, pInner, pGfx, pauseTitle, pDiv, resumeBtn, resumeTxt, quitBtn, quitTxt, keyHint])
 
-    // ── KEY LEGEND (bottom left, glass style) ──
-    this.createKeyLegend()
+    // ── KEY LEGEND (bottom left, glass style — keyboard only) ──
+    const isTouch = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
+    if (!isTouch) this.createKeyLegend()
 
     // ── PAUSE BUTTON (bottom right) ──
     const pauseBtn = this.add.text(width - 20, height - 14, '⏸ PAUSE', {
