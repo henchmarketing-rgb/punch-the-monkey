@@ -101,10 +101,11 @@ export default class StoryScene extends Phaser.Scene {
       onComplete: () => this.goToGame(),
     })
 
-    // Punch-kun silhouette walking across the bottom
-    if (this.textures.exists('punch-idle')) {
-      const pk = this.add.image(-60, height - 55, 'punch-idle')
+    // Punch-kun walking across the bottom (animated)
+    if (this.textures.exists('punch-walk')) {
+      const pk = this.add.sprite(-60, height - 55, 'punch-walk')
       pk.setScale(0.45).setTint(0x111133).setDepth(5)
+      pk.play('punch-walk')
       this.tweens.add({ targets: pk, x: width + 80, duration: 28000, ease: 'Linear' })
     }
 
