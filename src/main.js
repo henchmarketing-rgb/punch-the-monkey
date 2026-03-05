@@ -29,7 +29,7 @@ const config = {
 }
 
 try {
-  new Phaser.Game(config)
+  window.game = new Phaser.Game(config)
 } catch (e) {
   document.body.innerHTML = `
     <div style="color:#8acc44;font-family:monospace;text-align:center;padding:60px 20px;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;">
