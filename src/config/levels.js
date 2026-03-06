@@ -107,8 +107,8 @@ export const LEVELS = [
     ],
   },
   {
-    id: 10, zone: 'wild', name: 'The Dockside',
-    bg: 'bg-street2', musicKey: 'music-forest1',
+    id: 10, zone: 'wild', name: 'The Deep Woods',
+    bg: 'bg-forest2', musicKey: 'music-forest1',
     waves: [
       { count: 10, hp: 45, speed: 146, damage: 10 },
       { count: 16, hp: 45, speed: 150, damage: 10 },
