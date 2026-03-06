@@ -159,11 +159,12 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'zookeeper-hurt',   frames: anims.generateFrameNumbers('zookeeper', { start: 7, end: 7 }), frameRate: 6,  repeat: 0  })
 
     // SoR grunt — 6 cols × 3 rows, 76×88
-    anims.create({ key: 'sor-walk',      frames: anims.generateFrameNumbers('sor-enemy', { start: 0,  end: 5  }), frameRate: 8,  repeat: -1 })
-    anims.create({ key: 'sor-attack',    frames: anims.generateFrameNumbers('sor-enemy', { start: 6,  end: 11 }), frameRate: 10, repeat: 0  })
+    // Frames 4, 11, 16, 17 are corrupt (empty/test pattern/ripper credits) — skipped
+    anims.create({ key: 'sor-walk',      frames: anims.generateFrameNumbers('sor-enemy', { start: 0,  end: 3  }), frameRate: 8,  repeat: -1 })
+    anims.create({ key: 'sor-attack',    frames: anims.generateFrameNumbers('sor-enemy', { start: 6,  end: 10 }), frameRate: 10, repeat: 0  })
     anims.create({ key: 'sor-hurt',      frames: anims.generateFrameNumbers('sor-enemy', { start: 12, end: 13 }), frameRate: 8,  repeat: 0  })
-    anims.create({ key: 'sor-knockdown', frames: anims.generateFrameNumbers('sor-enemy', { start: 14, end: 16 }), frameRate: 8,  repeat: 0  })
-    anims.create({ key: 'sor-down',      frames: anims.generateFrameNumbers('sor-enemy', { start: 17, end: 17 }), frameRate: 2,  repeat: -1 })
+    anims.create({ key: 'sor-knockdown', frames: anims.generateFrameNumbers('sor-enemy', { start: 14, end: 15 }), frameRate: 8,  repeat: 0  })
+    anims.create({ key: 'sor-down',      frames: anims.generateFrameNumbers('sor-enemy', { start: 15, end: 15 }), frameRate: 2,  repeat: -1 })
 
     // SoR boss — Zamza (76×82, 10c×8r = 80 frames)
     anims.create({ key: 'zamza-walk',   frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 0,  end: 9  }), frameRate: 8,  repeat: -1 })
