@@ -74,6 +74,7 @@ export default class BootScene extends Phaser.Scene {
     // bg-forest3 pending
     this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.png')
     this.load.image('title-bg',  'assets/ui/title-bg.png')
+    this.load.image('banana',    'assets/items/banana.png')
 
     // Fallback
     this.createFallbackBG()

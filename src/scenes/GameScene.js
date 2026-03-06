@@ -202,6 +202,9 @@ export default class GameScene extends Phaser.Scene {
       this.sound.play('sfx-boss-intro', { volume: 0.85 })
     }
 
+    // Spawn banana extra-life pickup next to the boss
+    this._spawnBanana(boss.x - 120, boss.y)
+
     cam.stopFollow()
     cam.pan(boss.x, boss.y, PAN_TO, 'Sine.easeInOut')
     cam.zoomTo(2.0, ZOOM_IN, 'Sine.easeInOut')
@@ -218,17 +221,14 @@ export default class GameScene extends Phaser.Scene {
             boss.play('gorilla-chest', true)
           }
 
-          // Title text — varies by boss type
+          // Title text — floats in WORLD SPACE above the boss
           let title, subtitle
           if (isFinal) {
             title    = '...ONE MORE.'
             subtitle = '— THE LAST ONE —'
           } else if (isEaster) {
             title    = '?!?!?!'
-            subtitle = '— THIS FEELS FAMILIAR —'   // 🦍 DK nod
-          } else if (count >= 4) {
-            title    = 'BOSS FIGHT'
-            subtitle = `— × ${count} ANGRY GORILLAS —`
+            subtitle = '— THIS FEELS FAMILIAR —'
           } else if (count >= 2) {
             title    = 'BOSS FIGHT'
             subtitle = `— × ${count} ANGRY GORILLAS —`
@@ -237,19 +237,36 @@ export default class GameScene extends Phaser.Scene {
             subtitle = '— THE ANGRY GORILLA —'
           }
 
-          const line1 = this.add.text(width / 2, height / 2 - 64, title, {
-            fontSize: '56px', fontFamily: 'monospace', color: '#ff8c00',
+          // World-space: positioned above boss, follows boss.x each frame
+          const titleY    = boss.y - 160
+          const subtitleY = boss.y - 90
+
+          const line1 = this.add.text(boss.x, titleY, title, {
+            fontSize: '48px', fontFamily: 'monospace', color: '#ff8c00',
             stroke: '#000000', strokeThickness: 6,
-          }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
+          }).setOrigin(0.5).setDepth(901).setAlpha(0)
 
-          const line2 = this.add.text(width / 2, height / 2 + 20, subtitle, {
-            fontSize: '24px', fontFamily: 'monospace', color: '#ffffff',
+          const line2 = this.add.text(boss.x, subtitleY, subtitle, {
+            fontSize: '20px', fontFamily: 'monospace', color: '#ffffff',
             stroke: '#000000', strokeThickness: 3,
-          }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
+          }).setOrigin(0.5).setDepth(901).setAlpha(0)
 
-          this.tweens.add({ targets: [line1, line2], alpha: 1, duration: 380 })
+          // Fly upward slightly as they fade in
+          this.tweens.add({ targets: line1, alpha: 1, y: titleY - 12, duration: 380, ease: 'Back.easeOut' })
+          this.tweens.add({ targets: line2, alpha: 1, y: subtitleY - 8, duration: 420, ease: 'Back.easeOut' })
+
+          // Track boss x while camera is zoomed in
+          const followEvent = this.time.addEvent({
+            delay: 16, loop: true,
+            callback: () => {
+              if (!boss.active) return
+              line1.x = boss.x
+              line2.x = boss.x
+            },
+          })
 
           this.time.delayedCall(HOLD, () => {
+            followEvent.remove()
             this.tweens.add({
               targets: [overlay, line1, line2], alpha: 0, duration: 420,
               onComplete: () => {
@@ -268,6 +285,67 @@ export default class GameScene extends Phaser.Scene {
           })
         },
       })
+    })
+  }
+
+  _spawnBanana(x, y) {
+    if (!this.textures.exists('banana')) return
+    const clampedX = Phaser.Math.Clamp(x, 60, this.worldW - 60)
+    const clampedY = Phaser.Math.Clamp(y, this.walkTop + 30, this.walkBottom - 20)
+
+    const banana = this.add.image(clampedX, clampedY, 'banana')
+      .setDepth(clampedY + 1)
+      .setScale(0.55)   // 96px × 0.55 ≈ 53px on screen — visible but not huge
+
+    // Gentle bob
+    this.tweens.add({
+      targets: banana, y: clampedY - 10,
+      duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    })
+
+    // Golden glow pulse
+    this.tweens.add({
+      targets: banana, alpha: 0.75,
+      duration: 500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    })
+
+    // Pickup zone — check proximity each frame
+    const pickupZone = this.time.addEvent({
+      delay: 80, loop: true,
+      callback: () => {
+        if (!banana.active || !this.player?.active) return
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, banana.x, banana.y)
+        if (dist < 70) {
+          banana.destroy()
+          pickupZone.remove()
+          this._collectBanana()
+        }
+      },
+    })
+
+    // Store ref so we can clean up on scene shutdown
+    this._bananaPickups = this._bananaPickups || []
+    this._bananaPickups.push({ banana, pickupZone })
+  }
+
+  _collectBanana() {
+    this.lives++
+    this.events.emit('lives-update', this.lives)
+
+    if (this.cache.audio.exists('sfx-level-complete')) {
+      this.sound.play('sfx-level-complete', { volume: 0.7 })
+    }
+
+    // "+1 UP" pop text above player
+    const pop = this.add.text(this.player.x, this.player.y - 80, '+1 UP 🍌', {
+      fontSize: '22px', fontFamily: 'monospace', color: '#ffe000',
+      stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(999)
+
+    this.tweens.add({
+      targets: pop, y: pop.y - 55, alpha: 0,
+      duration: 1400, ease: 'Cubic.easeOut',
+      onComplete: () => pop.destroy(),
     })
   }
 
