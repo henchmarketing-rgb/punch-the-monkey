@@ -6,6 +6,13 @@ export default class WinScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale
 
+    // Credits music
+    if (this.cache.audio.exists('music-credits')) {
+      this.creditsMusic = this.sound.add('music-credits', { loop: true, volume: 0 })
+      this.creditsMusic.play()
+      this.tweens.add({ targets: this.creditsMusic, volume: 0.55, duration: 1200 })
+    }
+
     // Forest background
     if (this.textures.exists('bg-forest')) {
       this.add.image(0, 0, 'bg-forest').setOrigin(0, 0).setDisplaySize(width, height)
