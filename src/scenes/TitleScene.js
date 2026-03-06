@@ -44,7 +44,7 @@ export default class TitleScene extends Phaser.Scene {
     }).setOrigin(0.5)
 
     // ── PROMPT ──
-    const prompt = this.add.text(width / 2, height * 0.88, 'PRESS ENTER OR CLICK TO PLAY', {
+    const prompt = this.add.text(width / 2, height * 0.88, 'PRESS ANY BUTTON TO BEGIN', {
       fontSize: '16px', fontFamily: 'monospace', color: '#ffdd88',
       stroke: '#000000', strokeThickness: 3
     }).setOrigin(0.5)
@@ -81,7 +81,7 @@ export default class TitleScene extends Phaser.Scene {
       this.time.delayedCall(500, () => this.scene.start('Story'))
     }
 
-    this.input.keyboard.once('keydown-ENTER', startGame)
+    this.input.keyboard.once('keydown', startGame)
     this.input.once('pointerdown', startGame)
 
     this.cameras.main.fadeIn(800, 0, 0, 0)
