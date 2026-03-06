@@ -172,7 +172,8 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'zamza-hurt',   frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 50, end: 54 }), frameRate: 8,  repeat: 0  })
 
     // SoR boss — Gunner (104×104, 4c×8r = 32 frames)
-    anims.create({ key: 'jack-walk',   frames: anims.generateFrameNumbers('sor-boss-jack', { start: 0,  end: 3  }), frameRate: 7,  repeat: -1 })
+    // Frames 2 and 3 of jack are corrupt/empty — walk uses only 0-1
+    anims.create({ key: 'jack-walk',   frames: anims.generateFrameNumbers('sor-boss-jack', { start: 0,  end: 1  }), frameRate: 7,  repeat: -1 })
     anims.create({ key: 'jack-attack', frames: anims.generateFrameNumbers('sor-boss-jack', { start: 12, end: 17 }), frameRate: 10, repeat: 0  })
     anims.create({ key: 'jack-hurt',   frames: anims.generateFrameNumbers('sor-boss-jack', { start: 20, end: 23 }), frameRate: 8,  repeat: 0  })
 

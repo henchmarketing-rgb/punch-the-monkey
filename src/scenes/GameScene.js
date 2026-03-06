@@ -144,11 +144,12 @@ export default class GameScene extends Phaser.Scene {
 
         const isSoR = this.levelData.enemyType === 'sor'
         const e = new Enemy(this, spawnX, y, {
-          texture:    isSoR ? 'sor-enemy'   : 'macaque-walk',
-          walkAnim:   isSoR ? 'sor-walk'    : 'macaque-walk',
-          attackAnim: isSoR ? 'sor-attack'  : 'macaque-attack',
-          hurtAnim:   isSoR ? 'sor-hurt'    : 'macaque-hurt',
-          sorMode:    isSoR,
+          texture:      isSoR ? 'sor-enemy'   : 'macaque-walk',
+          walkAnim:     isSoR ? 'sor-walk'    : 'macaque-walk',
+          attackAnim:   isSoR ? 'sor-attack'  : 'macaque-attack',
+          hurtAnim:     isSoR ? 'sor-hurt'    : 'macaque-hurt',
+          sorMode:      isSoR,
+          displayScale: isSoR ? 2.5 : 1.0,   // SoR sprites are 76×88 — scale up to match game size
           hp:     waveCfg.hp,
           speed:  waveCfg.speed,
           damage: waveCfg.damage,
@@ -163,8 +164,8 @@ export default class GameScene extends Phaser.Scene {
 
   _makeSorBoss(type, x, y, hpMultiplier) {
     const configs = {
-      zamza:      { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',      attackAnim: 'zamza-attack',      hurtAnim: 'zamza-hurt',      speed: 155 },
-      jack:       { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',       attackAnim: 'jack-attack',       hurtAnim: 'jack-hurt',       speed: 140 },
+      zamza:      { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',      attackAnim: 'zamza-attack',      hurtAnim: 'zamza-hurt',      speed: 155, displayScale: 2.8 },
+      jack:       { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',       attackAnim: 'jack-attack',       hurtAnim: 'jack-hurt',       speed: 140, displayScale: 2.5 },
       electra:    { texture: 'sor-boss-electra',walkAnim:'electra-walk',    attackAnim:'electra-attack',     hurtAnim:'electra-hurt',     speed: 148 },
       zookeeper:     { texture: 'zookeeper',      walkAnim: 'zookeeper-walk',     attackAnim: 'zookeeper-attack',     hurtAnim: 'zookeeper-hurt',     speed: 145 },
       animalcontrol: { texture: 'animal-control', walkAnim: 'animalcontrol-walk', attackAnim: 'animalcontrol-attack', hurtAnim: 'animalcontrol-hurt', speed: 138 },
@@ -172,7 +173,8 @@ export default class GameScene extends Phaser.Scene {
     const cfg = configs[type]
     if (!cfg || !this.textures.exists(cfg.texture)) return null
     return new Enemy(this, x, y, {
-      ...cfg, hp: Math.round(675 * hpMultiplier), damage: 20, type: 'boss', displayScale: 1.6,
+      ...cfg, hp: Math.round(675 * hpMultiplier), damage: 20, type: 'boss',
+      displayScale: cfg.displayScale ?? 1.6,  // use boss-specific scale, fallback to 1.6
     })
   }
 
