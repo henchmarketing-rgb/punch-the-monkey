@@ -46,6 +46,24 @@ export default class LoreScene extends Phaser.Scene {
   }
 
   create() {
+    // ── Preload next zone's music while player reads story ──
+    const toLoad = {
+      4: [['music-city1', 'assets/audio/music-city1.mp3'], ['music-city2', 'assets/audio/music-city2.mp3']],
+      8: [
+        ['music-forest1',    'assets/audio/music-forest1.mp3'],
+        ['music-forest2',    'assets/audio/music-forest2.mp3'],
+        ['music-boss-final', 'assets/audio/music-boss-final.mp3'],
+        ['music-credits',    'assets/audio/music-credits.mp3'],
+      ],
+    }[this.afterLevel] || []
+
+    toLoad.forEach(([key, path]) => {
+      if (!this.cache.audio.exists(key)) {
+        this.load.audio(key, path)
+      }
+    })
+    if (toLoad.length) this.load.start()
+
     const { width, height } = this.scale
     const lines = ACTS[this.afterLevel] || ACTS[4]
 

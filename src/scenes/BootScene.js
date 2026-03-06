@@ -39,16 +39,12 @@ export default class BootScene extends Phaser.Scene {
 
     // === AUDIO ===
     // Music
-    // All music loaded at boot — audio decodes async and doesn't block rendering
-    this.load.audio('music-title',      'assets/audio/music-title.mp3')
-    this.load.audio('music-zoo',        'assets/audio/music-zoo.mp3')
-    this.load.audio('music-boss',       'assets/audio/music-boss.mp3')
-    this.load.audio('music-city1',      'assets/audio/music-city1.mp3')
-    this.load.audio('music-city2',      'assets/audio/music-city2.mp3')
-    this.load.audio('music-forest1',    'assets/audio/music-forest1.mp3')
-    this.load.audio('music-forest2',    'assets/audio/music-forest2.mp3')
-    this.load.audio('music-boss-final', 'assets/audio/music-boss-final.mp3')
-    this.load.audio('music-credits',    'assets/audio/music-credits.mp3')
+    // Boot loads: Zone 1 music + SFX only (~15MB).
+    // Zone 2 music (city) loaded in LoreScene act 1 (after L4, during story text).
+    // Zone 3 music (forest) loaded in LoreScene act 2 (after L8, during story text).
+    this.load.audio('music-title', 'assets/audio/music-title.mp3')
+    this.load.audio('music-zoo',   'assets/audio/music-zoo.mp3')
+    this.load.audio('music-boss',  'assets/audio/music-boss.mp3')
     // SFX
     this.load.audio('sfx-punch',          'assets/audio/sfx-punch.wav')
     this.load.audio('sfx-kick',           'assets/audio/sfx-kick.mp3')
@@ -96,6 +92,25 @@ export default class BootScene extends Phaser.Scene {
     this.createFallbackBG()
 
     this.load.on('loaderror', (file) => console.warn('Asset load error:', file.key))
+
+    // ── Progress bar ──
+    const { width, height } = this.scale
+    const barW = 320, barH = 12
+    const bx = width / 2 - barW / 2, by = height * 0.72
+
+    const bg = this.add.rectangle(width / 2, by + barH / 2, barW + 4, barH + 4, 0x222222).setDepth(10)
+    const fill = this.add.rectangle(bx, by + barH / 2, 0, barH, 0xffd700).setOrigin(0, 0.5).setDepth(11)
+    const label = this.add.text(width / 2, by + 28, 'LOADING...', {
+      fontSize: '13px', fontFamily: 'monospace', color: '#888888'
+    }).setOrigin(0.5).setDepth(11)
+
+    this.load.on('progress', (v) => {
+      fill.width = barW * v
+      label.setText(`LOADING  ${Math.floor(v * 100)}%`)
+    })
+    this.load.on('complete', () => {
+      bg.destroy(); fill.destroy(); label.destroy()
+    })
   }
 
   createFallbackBG() {

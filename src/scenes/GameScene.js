@@ -78,10 +78,23 @@ export default class GameScene extends Phaser.Scene {
   _startLevelMusic() {
     this._stopAllMusic()
     const key = this.levelData.musicKey
-    if (!key || !this.cache.audio.exists(key)) return
-    this.music = this.sound.add(key, { loop: true, volume: 0 })
-    this.music.play()
-    this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
+    if (!key) return
+
+    const play = () => {
+      if (!this.cache.audio.exists(key)) return
+      this.music = this.sound.add(key, { loop: true, volume: 0 })
+      this.music.play()
+      this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
+    }
+
+    if (this.cache.audio.exists(key)) {
+      play()
+    } else {
+      // Not cached yet (e.g. level-nav jump skipping lore) — load on demand
+      this.load.audio(key, `assets/audio/${key}.mp3`)
+      this.load.once('complete', () => play())
+      this.load.start()
+    }
   }
 
   _startBossMusic() {
