@@ -82,17 +82,33 @@ export default class Boss extends Enemy {
     const scene = this.scene
     if (!scene) return
 
-    // Freeze physics — let the death animation take over
+    // Freeze physics
     this.body.setVelocity(0, 0)
     this.body.setEnable(false)
 
-    // Play death/fall animation first, then trigger the rest of the sequence
-    if (scene.anims.exists('gorilla-death')) {
-      this.play('gorilla-death', true)
-      this.once('animationcomplete-gorilla-death', () => this._deathFinale())
-    } else {
-      this._deathFinale()
+    // Rapid white flash, then sink and fade into the floor
+    let flashes = 0
+    const flashFast = () => {
+      if (!this.active) return
+      this.setTint(0xffffff)
+      scene.time.delayedCall(60, () => {
+        if (this.active) this.clearTint()
+        flashes++
+        if (flashes < 6) scene.time.delayedCall(60, flashFast)
+        else {
+          // Sink and fade
+          scene.tweens.add({
+            targets: this,
+            y:     this.y + 80,
+            alpha: 0,
+            duration: 500,
+            ease: 'Sine.easeIn',
+            onComplete: () => this._deathFinale(),
+          })
+        }
+      })
     }
+    flashFast()
   }
 
   _deathFinale() {
