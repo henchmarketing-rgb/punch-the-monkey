@@ -50,10 +50,29 @@ export default class BootScene extends Phaser.Scene {
     this.load.audio('sfx-boss-death',     'assets/audio/sfx-boss-death.wav')
 
     // === BACKGROUNDS ===
+    // Zone 1 — Zoo
     this.load.image('bg-zoo',    'assets/backgrounds/bg-zoo.png')
-    this.load.image('bg-escape', 'assets/backgrounds/bg-escape.png')
-    this.load.image('bg-street', 'assets/backgrounds/bg-street.png')
-    this.load.image('bg-forest', 'assets/backgrounds/bg-forest.png')
+    this.load.image('bg-zoo2',   'assets/backgrounds/bg-zoo2.png')
+    // bg-zoo3 pending
+    this.load.image('bg-zoo4',   'assets/backgrounds/bg-zoo4.png')
+
+    // Zone 2 — Escape
+    this.load.image('bg-escape',  'assets/backgrounds/bg-escape.png')
+    // bg-escape2 pending
+    this.load.image('bg-escape3', 'assets/backgrounds/bg-escape3.png')
+    // bg-escape4 pending
+
+    // Zone 3 — Streets
+    this.load.image('bg-street',  'assets/backgrounds/bg-street.png')
+    this.load.image('bg-street2', 'assets/backgrounds/bg-street2.png')
+    // bg-street3 pending
+    // bg-street4 pending
+
+    // Zone 4 — Forest
+    this.load.image('bg-forest',  'assets/backgrounds/bg-forest.png')
+    this.load.image('bg-forest2', 'assets/backgrounds/bg-forest2.png')
+    // bg-forest3 pending
+    this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.png')
     this.load.image('title-bg',  'assets/ui/title-bg.png')
 
     // Fallback
