@@ -229,8 +229,11 @@ export default class GameScene extends Phaser.Scene {
       this.sound.play('sfx-boss-intro', { volume: 0.85 })
     }
 
-    // Spawn banana extra-life pickup next to the boss
-    this._spawnBanana(boss.x - 120, boss.y)
+    // Spawn ONE banana per boss encounter — regardless of how many bosses spawn
+    if (!this._bananaSpawnedThisWave) {
+      this._bananaSpawnedThisWave = true
+      this._spawnBanana(boss.x - 120, boss.y)
+    }
 
     cam.stopFollow()
     cam.pan(boss.x, boss.y, PAN_TO, 'Sine.easeInOut')
@@ -481,6 +484,8 @@ export default class GameScene extends Phaser.Scene {
     // Track multi-boss count
     this.activeBossCount = Math.max(0, this.activeBossCount - 1)
     if (this.activeBossCount > 0) return   // wait for all bosses to die
+
+    this._bananaSpawnedThisWave = false   // reset for next boss encounter
 
     const nextEntry = this.levelData.waves[this.wave]
     this.time.delayedCall(2000, () => {
