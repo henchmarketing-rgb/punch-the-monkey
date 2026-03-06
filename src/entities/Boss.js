@@ -1,12 +1,13 @@
 import Enemy from './Enemy.js'
 
 export default class Boss extends Enemy {
-  constructor(scene, x, y) {
+  constructor(scene, x, y, opts = {}) {
+    const hpMult = opts.hpMultiplier || 1
     super(scene, x, y, {
       texture:    'gorilla-idle',
       walkAnim:   'gorilla-walk',
       attackAnim: 'gorilla-slam',
-      hp:     225,   // 15 hits at player attackDmg=15
+      hp: Math.round(675 * hpMult),   // 3× base × optional multiplier
       speed:  150,
       damage: 20,
       type:   'boss',

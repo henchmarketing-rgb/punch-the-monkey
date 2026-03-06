@@ -5,6 +5,7 @@ import TitleScene      from './scenes/TitleScene.js'
 import TransitionScene from './scenes/TransitionScene.js'
 import GameScene       from './scenes/GameScene.js'
 import UIScene         from './scenes/UIScene.js'
+import LoreScene       from './scenes/LoreScene.js'
 import GameOverScene   from './scenes/GameOverScene.js'
 import WinScene        from './scenes/WinScene.js'
 
@@ -25,7 +26,7 @@ const config = {
     default: 'arcade',
     arcade:  { gravity: { y: 0 }, debug: false }
   },
-  scene: [BootScene, StoryScene, TitleScene, TransitionScene, GameScene, UIScene, GameOverScene, WinScene]
+  scene: [BootScene, StoryScene, TitleScene, TransitionScene, GameScene, UIScene, LoreScene, GameOverScene, WinScene]
 }
 
 try {
