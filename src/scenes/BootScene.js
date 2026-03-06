@@ -22,8 +22,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('macaque-attack', 'assets/sprites/macaque-attack.png', { frameWidth: 390, frameHeight: 300 })
     this.load.spritesheet('macaque-hurt',   'assets/sprites/macaque-hurt.png',   { frameWidth: 270, frameHeight: 270 })
 
-    // === ZOOKEEPER BOSS ===
-    this.load.spritesheet('zookeeper', 'assets/sprites/zookeeper.png', { frameWidth: 192, frameHeight: 355 })
+    // === BOSS SPRITES ===
+    this.load.spritesheet('zookeeper',     'assets/sprites/zookeeper.png',     { frameWidth: 192, frameHeight: 355 })
+    this.load.spritesheet('animal-control','assets/sprites/animal-control.png',{ frameWidth: 384, frameHeight: 407 })
 
     // === SOR ENEMY + BOSSES (L9 — Streets of Rage homage) ===
     this.load.spritesheet('sor-enemy',       'assets/sprites/sor-enemy.png',       { frameWidth: 76,  frameHeight: 88  })
@@ -131,6 +132,11 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'macaque-walk',   frames: anims.generateFrameNumbers('macaque-walk',   { start: 0, end: 3 }), frameRate: 7, repeat: -1 })
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'macaque-hurt',   frames: anims.generateFrameNumbers('macaque-hurt',   { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
+
+    // Animal Control boss — 9 frames (384×407): 0-4 walk, 5-7 attack (net swing), 8 hurt
+    anims.create({ key: 'animalcontrol-walk',   frames: anims.generateFrameNumbers('animal-control', { start: 0, end: 4 }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'animalcontrol-attack', frames: anims.generateFrameNumbers('animal-control', { start: 5, end: 7 }), frameRate: 9,  repeat: 0  })
+    anims.create({ key: 'animalcontrol-hurt',   frames: anims.generateFrameNumbers('animal-control', { start: 8, end: 8 }), frameRate: 6,  repeat: 0  })
 
     // Zookeeper boss — 8 frames (192×355): 0-4 walk, 5-6 attack, 7 hurt
     anims.create({ key: 'zookeeper-walk',   frames: anims.generateFrameNumbers('zookeeper', { start: 0, end: 4 }), frameRate: 7,  repeat: -1 })

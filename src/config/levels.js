@@ -88,7 +88,7 @@ export const LEVELS = [
     waves: [
       { count: 8,  hp: 45, speed: 138, damage: 10 },
       { count: 14, hp: 45, speed: 142, damage: 10 },
-      { boss: true, count: 2 },
+      { boss: true, count: 2, sorBoss: 'animalcontrol' },
     ],
   },
 
