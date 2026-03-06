@@ -266,6 +266,12 @@ export default class GameScene extends Phaser.Scene {
 
     if (entry.boss) {
       this.time.delayedCall(700, () => {
+        // Safety check — don't spawn boss if enemies are somehow still alive
+        const stillAlive = this.enemies.filter(e => e.active)
+        if (stillAlive.length > 0) {
+          this.wave--  // revert so onEnemyDefeated can retry
+          return
+        }
         if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
         const count       = entry.count || 1
         const isFinal     = entry.final   || false

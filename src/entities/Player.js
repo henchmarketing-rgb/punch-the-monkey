@@ -77,6 +77,12 @@ export default class Player extends Phaser.GameObjects.Sprite {
       return
     }
 
+    // Frozen during boss intros / cinematics — block all input and stop movement
+    if (this._frozen) {
+      this.body.setVelocity(0, 0)
+      return
+    }
+
     if (this.attackCooldown > 0) this.attackCooldown -= delta
     if (this.specialCooldown > 0) this.specialCooldown -= delta
 

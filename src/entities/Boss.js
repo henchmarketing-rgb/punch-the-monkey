@@ -115,38 +115,21 @@ export default class Boss extends Enemy {
     const scene = this.scene
     if (!scene) return
 
-    scene.cameras.main.shake(800, 0.02)
-    scene.time.timeScale = 0.25
-    // Boss death roar
+    scene.cameras.main.shake(600, 0.02)
+    scene.time.timeScale = 1
+
     if (scene.cache.audio.exists('sfx-boss-death')) {
       scene.sound.play('sfx-boss-death', { volume: 0.9 })
     }
-    // Stop and destroy boss music
     if (scene.bossMusic) { scene.bossMusic.destroy(); scene.bossMusic = null }
 
-    // Triple white flash
-    let flashes = 0
-    const doFlash = () => {
-      this.setTint(0xffffff)
-      scene.time.delayedCall(120, () => {
-        if (this.active) this.clearTint()
-        flashes++
-        if (flashes < 3) scene.time.delayedCall(120, doFlash)
-        else {
-          scene.time.delayedCall(400, () => {
-            // Restore time scale
-            scene.time.timeScale = 1
-            // Boss FX
-            const fx = scene.add.sprite(this.x, this.y, 'boss-fx-fire', 0)
-            fx.setDepth(999).setScale(1.0)   // 288px frame × 1.0 = 288px — big but contained
-            fx.play('boss-fx-fire')
-            fx.once('animationcomplete', () => fx.destroy())
-            scene.events.emit('boss-defeated')
-            this.destroy()
-          })
-        }
-      })
-    }
-    scene.time.delayedCall(300, doFlash)
+    scene.time.delayedCall(300, () => {
+      const fx = scene.add.sprite(this.x, this.y, 'boss-fx-fire', 0)
+      fx.setDepth(999).setScale(1.0)
+      fx.play('boss-fx-fire')
+      fx.once('animationcomplete', () => fx.destroy())
+      scene.events.emit('boss-defeated')
+      this.destroy()
+    })
   }
 }
