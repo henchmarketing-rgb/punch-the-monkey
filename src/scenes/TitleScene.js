@@ -83,7 +83,7 @@ export default class TitleScene extends Phaser.Scene {
       this.time.delayedCall(500, () => this.scene.start('Story'))
     }
 
-    this.input.keyboard.once('keydown', startGame)
+    if (this.input.keyboard) this.input.keyboard.once('keydown', startGame)
     this.input.once('pointerdown', startGame)
 
     this.cameras.main.fadeIn(800, 0, 0, 0)

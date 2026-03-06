@@ -31,16 +31,21 @@ export default class StoryScene extends Phaser.Scene {
       { text: 'is born into captivity.',    size: 15, color: '#ccccdd' },
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'Abandoned by his mother',    size: 15, color: '#ccccdd' },
-      { text: 'on his first day, he finds', size: 15, color: '#ccccdd' },
-      { text: 'comfort in a small stuffed toy —', size: 15, color: '#ccccdd' },
-      { text: 'an orange orangutan named',  size: 15, color: '#ccccdd' },
-      { text: 'DJUNGELSKOG.',               size: 15, color: '#ccccdd' },
+      { text: 'on his first day.',          size: 15, color: '#ccccdd' },
+      { text: '',                           size: 14, color: '#aaaacc' },
+      { text: 'In the silence he finds',    size: 15, color: '#ccccdd' },
+      { text: 'one thing that stays: a small', size: 15, color: '#ccccdd' },
+      { text: 'stuffed toy — an orange',     size: 15, color: '#ccccdd' },
+      { text: 'orangutan the keepers never', size: 15, color: '#ccccdd' },
+      { text: 'bothered to name.',           size: 15, color: '#ccccdd' },
+      { text: 'He calls it DJUNGELSKOG.',   size: 15, color: '#ccccdd' },
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'The zookeepers call him',    size: 15, color: '#ccccdd' },
       { text: 'PUNCH-KUN.',                 size: 22, color: '#ffcc00' },
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'They say he is safe here.', size: 15, color: '#ccccdd' },
       { text: 'They say the walls protect him.', size: 15, color: '#ccccdd' },
+      { text: 'They feed him. They clean his cage.', size: 15, color: '#ccccdd' },
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'But Punch-kun knows the truth.', size: 15, color: '#ccccdd' },
       { text: '',                           size: 14, color: '#aaaacc' },
@@ -52,6 +57,7 @@ export default class StoryScene extends Phaser.Scene {
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'FREEDOM.',                  size: 28, color: '#ff8c00' },
       { text: '',                           size: 14, color: '#aaaacc' },
+      { text: 'Tonight, he slips the lock.', size: 15, color: '#ccccdd' },
       { text: 'Tonight, Punch-kun escapes.', size: 15, color: '#ccccdd' },
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'He will fight every guard,', size: 15, color: '#ccccdd' },
@@ -61,8 +67,7 @@ export default class StoryScene extends Phaser.Scene {
       { text: '',                           size: 14, color: '#aaaacc' },
       { text: 'And he will never,',        size: 15, color: '#ccccdd' },
       { text: 'ever drop the toy.',        size: 15, color: '#ccccdd' },
-      { text: '',                           size: 18, color: '#aaaacc' },
-      { text: '',                           size: 18, color: '#aaaacc' },
+      { text: '',                           size: 14, color: '#aaaacc' },
       { text: '— BEGIN YOUR ESCAPE —',     size: 20, color: '#ff8c00' },
       { text: '',                           size: 18, color: '#aaaacc' },
       { text: '',                           size: 18, color: '#aaaacc' },
@@ -91,12 +96,12 @@ export default class StoryScene extends Phaser.Scene {
       this.textGroup.add(txt)
     })
 
-    // Scroll tween — 28s total
+    // Scroll tween — 38s for extended text (skip any time)
     const endOffset = -(totalH + startY + 40)
     this.scrollTween = this.tweens.add({
       targets:    this.textGroup,
       y:          endOffset,
-      duration:   28000,
+      duration:   38000,
       ease:       'Linear',
       onComplete: () => this.goToGame(),
     })
@@ -106,7 +111,7 @@ export default class StoryScene extends Phaser.Scene {
       const pk = this.add.sprite(-60, height - 55, 'punch-walk')
       pk.setScale(0.45).setTint(0x111133).setDepth(5)
       pk.play('punch-walk')
-      this.tweens.add({ targets: pk, x: width + 80, duration: 28000, ease: 'Linear' })
+      this.tweens.add({ targets: pk, x: width + 80, duration: 38000, ease: 'Linear' })
     }
 
     // Skip hint
@@ -117,8 +122,8 @@ export default class StoryScene extends Phaser.Scene {
     this.tweens.add({ targets: skipHint, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 })
 
     // Skip on any key or click
-    this.input.keyboard.once('keydown', () => this.skip())
-    this.input.once('pointerdown',      () => this.skip())
+    if (this.input.keyboard) this.input.keyboard.once('keydown', () => this.skip())
+    this.input.once('pointerdown', () => this.skip())
 
     this.cameras.main.fadeIn(600, 0, 0, 0)
   }

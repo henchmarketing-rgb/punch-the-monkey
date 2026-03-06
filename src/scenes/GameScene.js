@@ -11,10 +11,13 @@ export default class GameScene extends Phaser.Scene {
     this.levelData       = LEVELS[this.levelIndex] || LEVELS[0]
     this.score           = data.score || 0
     this.lives           = data.lives !== undefined ? data.lives : 3
-    this.wave            = 0      // advanceWave() increments before reading
-    this.activeBossCount = 0      // tracks simultaneous bosses alive
-    this.awaitingAdvance = false
-    this._bossSpawning   = false  // locked once boss wave is reached — prevents wave counter corruption
+    this.wave                    = 0      // advanceWave() increments before reading
+    this.activeBossCount         = 0      // tracks simultaneous bosses alive
+    this.awaitingAdvance         = false
+    this._bossSpawning           = false  // locked once boss wave is reached — prevents wave counter corruption
+    this._bananaSpawnedThisWave  = false
+    this.pendingSpawns           = 0
+    this._cinemaMode             = false
   }
 
   create() {
@@ -33,7 +36,6 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setDisplaySize(this.worldW, height)
       .setScrollFactor(1)
-      .setDepth(0)
       .setDepth(0)
 
     const topRatio  = this.levelData.walkTopRatio    ?? 0.42
@@ -217,8 +219,8 @@ export default class GameScene extends Phaser.Scene {
       zamza:      { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',      attackAnim: 'zamza-attack',      hurtAnim: 'zamza-hurt',      speed: 155, displayScale: 2.8 },
       jack:       { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',       attackAnim: 'jack-attack',       hurtAnim: 'jack-hurt',       speed: 140, displayScale: 2.5 },
       electra:    { texture: 'sor-boss-electra',walkAnim:'electra-walk',    attackAnim:'electra-attack',     hurtAnim:'electra-hurt',     speed: 148 },
-      zookeeper:     { texture: 'zookeeper',      walkAnim: 'zookeeper-walk',     attackAnim: 'zookeeper-attack',     hurtAnim: 'zookeeper-hurt',     speed: 145 },
-      animalcontrol: { texture: 'animal-control', walkAnim: 'animalcontrol-walk', attackAnim: 'animalcontrol-attack', hurtAnim: 'animalcontrol-hurt', speed: 138 },
+      zookeeper:     { texture: 'zookeeper',      walkAnim: 'zookeeper-walk',     attackAnim: 'zookeeper-attack',     hurtAnim: 'zookeeper-hurt',     speed: 145, displayScale: 0.52 },
+      animalcontrol: { texture: 'animal-control', walkAnim: 'animalcontrol-walk', attackAnim: 'animalcontrol-attack', hurtAnim: 'animalcontrol-hurt', speed: 138, displayScale: 0.75 },
     }
     const cfg = configs[type]
     if (!cfg || !this.textures.exists(cfg.texture)) return null
@@ -228,12 +230,14 @@ export default class GameScene extends Phaser.Scene {
     })
   }
 
-  spawnBoss(offsetX = 0, hpMultiplier = 1, sorBossType = null, fromLeft = false) {
+  spawnBoss(offsetX = 0, hpMultiplier = 1, sorBossType = null, fromLeft = false, spawnCentral = false) {
     const cam    = this.cameras.main
-    const spawnX = fromLeft
-      ? Math.max(cam.scrollX - 80 - offsetX, 30)
-      : Math.min(cam.scrollX + cam.width + 80 + offsetX, this.worldW - 30)
     const spawnY = Phaser.Math.Between(this.walkTop + 60, this.walkBottom - 40)
+    const spawnX = spawnCentral
+      ? cam.scrollX + cam.width / 2
+      : fromLeft
+        ? Math.max(cam.scrollX - 80 - offsetX, 30)
+        : Math.min(cam.scrollX + cam.width + 80 + offsetX, this.worldW - 30)
 
     let boss = sorBossType ? this._makeSorBoss(sorBossType, spawnX, spawnY, hpMultiplier) : null
     if (!boss) boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
@@ -255,8 +259,9 @@ export default class GameScene extends Phaser.Scene {
     }
     this.activeBossCount = count
     const bosses = []
+    const central = count === 1
     for (let i = 0; i < count; i++) {
-      bosses.push(this.spawnBoss(i * 220, hpMultiplier, sorBossType))
+      bosses.push(this.spawnBoss(i * 220, hpMultiplier, sorBossType, false, central))
     }
     this.boss = bosses[0]
     return bosses[0]
@@ -278,34 +283,35 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (entry.boss) {
-      // Lock immediately — prevents any further advanceWave() calls corrupting the counter
+      // Lock immediately — advance only after last character has done their last action (removed from list)
       this._bossSpawning = true
-      this.time.delayedCall(700, () => {
-        // Belt-and-suspenders: wait for enemies to fully clear before boss enters
-        const stillAlive = this.enemies.filter(e => e.active)
-        if (stillAlive.length > 0) {
-          // Not ready yet — retry every 300ms until field is clear
-          const retry = () => {
-            const alive = this.enemies.filter(e => e.active)
-            if (alive.length === 0) spawnBossNow()
-            else this.time.delayedCall(300, retry)
-          }
-          retry()
-          return
+      const MAX_BOSS_RETRIES = 150  // ~30s max wait so we never hang forever
+      let retries = 0
+      const tryBossSequence = () => {
+        this.enemies = this.enemies.filter(e => e && e.active)
+        const fieldClear = this.enemies.length === 0 && (this.pendingSpawns || 0) === 0
+        if (fieldClear || retries >= MAX_BOSS_RETRIES) {
+          runBossSequence()
+        } else {
+          retries++
+          this.time.delayedCall(200, tryBossSequence)
         }
-        spawnBossNow()
-      })
-      const spawnBossNow = () => {
-        if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
-        const count       = entry.count || 1
-        const isFinal     = entry.final   || false
-        const isEaster    = entry.easter  || false
-        const sorBoss     = entry.sorBoss || null
-        const hpMult      = isFinal ? 1.5 : 1
-        const boss        = this.spawnMultipleBosses(count, hpMult, sorBoss)
-        this.showBossIntro(boss, () => {
-          if (this.player) this.player._frozen = false
-        }, { count, isEaster, isFinal, sorBoss })
+      }
+      tryBossSequence()
+      const runBossSequence = () => {
+        const count    = entry.count || 1
+        const isFinal  = entry.final  || false
+        const isEaster = entry.easter || false
+        const sorBoss  = entry.sorBoss || null
+        const opts    = { count, isEaster, isFinal, sorBoss }
+        // 1) Title card first (no boss on screen), then 2) spawn boss and run zoom intro
+        this.showBossTitleCard(opts, () => {
+          const hpMult = isFinal ? 1.5 : 1
+          const boss  = this.spawnMultipleBosses(count, hpMult, sorBoss)
+          this.showBossIntro(boss, () => {
+            if (this.player) this.player._frozen = false
+          }, opts)
+        })
       }
     } else {
       this.time.delayedCall(1400, () => this.spawnWave(entry))
@@ -314,7 +320,70 @@ export default class GameScene extends Phaser.Scene {
 
   // ── BOSS INTRO CINEMATIC ──────────────────────────────────────────────────
 
+  /** Picks title/subtitle strings from opts (same logic as showBossIntro). */
+  _getBossTitleStrings(opts = {}) {
+    const { count = 1, isEaster = false, isFinal = false, sorBoss = null } = opts
+    if (isFinal) return { title: '...ONE MORE.', subtitle: '— THE LAST ONE —' }
+    if (isEaster) return { title: '?!?!?!', subtitle: '— THIS FEELS FAMILIAR —' }
+    if (sorBoss === 'animalcontrol') return { title: 'ANIMAL CONTROL', subtitle: '— NET INCOMING —' }
+    if (sorBoss === 'zookeeper') return { title: 'THE ZOOKEEPER', subtitle: '— PUT IT BACK IN THE CAGE —' }
+    if (sorBoss === 'zamza') return { title: 'ZAMZA', subtitle: '— THE CLAWS —' }
+    if (sorBoss === 'jack') return { title: 'JACK', subtitle: '— THE KNIFE —' }
+    if (sorBoss === 'electra') return { title: 'ELECTRA', subtitle: '— STREETS OF RAGE —' }
+    if (sorBoss === 'jack+zamza') return { title: 'JACK  &  ZAMZA', subtitle: '— TOGETHER —' }
+    if (count >= 2) return { title: 'BOSS FIGHT', subtitle: `— × ${count} ANGRY GORILLAS —` }
+    return { title: 'BOSS FIGHT', subtitle: '— THE ANGRY GORILLA —' }
+  }
+
+  /** Shows "Boss Fight - The Angry Gorilla" (or variant) on screen first — no boss spawned yet. */
+  showBossTitleCard(opts, onComplete) {
+    this._cinemaMode = true
+    if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
+
+    this._startBossMusic()
+    if (this.cache.audio.exists('sfx-boss-intro')) {
+      this.sound.play('sfx-boss-intro', { volume: 0.85 })
+    }
+
+    const { width, height } = this.scale
+    const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0)
+      .setScrollFactor(0).setDepth(900)
+    this.tweens.add({ targets: overlay, alpha: 0.82, duration: 400 })
+
+    const { title, subtitle } = this._getBossTitleStrings(opts)
+    const cx = width / 2
+    const line1 = this.add.text(cx, height / 2 - 50, title, {
+      fontSize: '48px', fontFamily: 'monospace', color: '#ff8c00',
+      stroke: '#000000', strokeThickness: 6,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
+    const line2 = this.add.text(cx, height / 2 + 10, subtitle, {
+      fontSize: '20px', fontFamily: 'monospace', color: '#ffffff',
+      stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(901).setAlpha(0)
+    this.tweens.add({ targets: line1, alpha: 1, duration: 350, delay: 350 })
+    this.tweens.add({ targets: line2, alpha: 1, duration: 350, delay: 450 })
+
+    const HOLD = 2600
+    this.time.delayedCall(HOLD, () => {
+      this.tweens.add({
+        targets: [overlay, line1, line2], alpha: 0, duration: 450,
+        onComplete: () => {
+          overlay.destroy()
+          line1.destroy()
+          line2.destroy()
+          this._cinemaMode = false
+          if (onComplete) onComplete()
+        },
+      })
+    })
+  }
+
   showBossIntro(boss, onComplete, opts = {}) {
+    if (!boss || !boss.scene) {
+      if (onComplete) onComplete()
+      return
+    }
+    this._cinemaMode = true
     const { width, height } = this.scale
     const cam = this.cameras.main
     const { count = 1, isEaster = false, isFinal = false, sorBoss = null } = opts
@@ -325,6 +394,9 @@ export default class GameScene extends Phaser.Scene {
     const PAN_BACK = 1300
     const ZOOM_OUT = 1300
 
+    // Freeze boss in place for the whole intro so he doesn’t jitter (physics/gravity)
+    const wasBossMoving = boss.body ? boss.body.moves : true
+    if (boss.body) { boss.body.moves = false; boss.body.setVelocity(0, 0) }
     this._startBossMusic()
 
     if (this.cache.audio.exists('sfx-boss-intro')) {
@@ -338,55 +410,42 @@ export default class GameScene extends Phaser.Scene {
     }
 
     cam.stopFollow()
-    cam.pan(boss.x, boss.y, PAN_TO, 'Sine.easeInOut')
-    cam.zoomTo(2.0, ZOOM_IN, 'Sine.easeInOut')
+    // For 2× zoom the visible world size is width/2 × height/2 — center that on the boss
+    const zoom = 2.0
+    const visW = width / zoom
+    const visH = height / zoom
+    const maxScrollX = Math.max(0, this.worldW - visW)
+    const maxScrollY = Math.max(0, height - visH)
+    cam.scrollX = Phaser.Math.Clamp(boss.x - visW / 2, 0, maxScrollX)
+    cam.scrollY = Phaser.Math.Clamp(boss.y - visH / 2, 0, maxScrollY)
+    cam.zoomTo(zoom, ZOOM_IN, 'Sine.easeInOut')
 
     this.time.delayedCall(PAN_TO, () => {
+      if (!boss || !boss.active) {
+        this._cinemaMode = false
+        if (this.player) this.player._frozen = false
+        onComplete()
+        return
+      }
       const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0)
         .setScrollFactor(0).setDepth(900)
 
       this.tweens.add({
         targets: overlay, alpha: 0.78, duration: 350,
         onComplete: () => {
+          if (!boss || !boss.active) {
+            overlay.destroy()
+            this._cinemaMode = false
+            if (this.player) this.player._frozen = false
+            onComplete()
+            return
+          }
           cam.shake(800, 0.025)
           if (boss.anims && this.anims.exists('gorilla-chest')) {
             boss.play('gorilla-chest', true)
           }
 
-          // Title text — floats in WORLD SPACE above the boss
-          let title, subtitle
-          if (isFinal) {
-            title    = '...ONE MORE.'
-            subtitle = '— THE LAST ONE —'
-          } else if (isEaster) {
-            title    = '?!?!?!'
-            subtitle = '— THIS FEELS FAMILIAR —'
-          } else if (sorBoss === 'animalcontrol') {
-            title    = 'ANIMAL CONTROL'
-            subtitle = '— NET INCOMING —'
-          } else if (sorBoss === 'zookeeper') {
-            title    = 'THE ZOOKEEPER'
-            subtitle = '— PUT IT BACK IN THE CAGE —'
-          } else if (sorBoss === 'zamza') {
-            title    = 'ZAMZA'
-            subtitle = '— THE CLAWS —'
-          } else if (sorBoss === 'jack') {
-            title    = 'JACK'
-            subtitle = '— THE KNIFE —'
-          } else if (sorBoss === 'electra') {
-            title    = 'ELECTRA'
-            subtitle = '— STREETS OF RAGE —'
-          } else if (sorBoss === 'jack+zamza') {
-            title    = 'JACK  &  ZAMZA'
-            subtitle = '— TOGETHER —'
-          } else if (count >= 2) {
-            title    = 'BOSS FIGHT'
-            subtitle = `— × ${count} ANGRY GORILLAS —`
-          } else {
-            title    = 'BOSS FIGHT'
-            subtitle = '— THE ANGRY GORILLA —'
-          }
-
+          const { title, subtitle } = this._getBossTitleStrings(opts)
           // World-space: positioned above boss, follows boss.x each frame
           const titleY    = boss.y - 160
           const subtitleY = boss.y - 90
@@ -405,13 +464,15 @@ export default class GameScene extends Phaser.Scene {
           this.tweens.add({ targets: line1, alpha: 1, y: titleY - 12, duration: 380, ease: 'Back.easeOut' })
           this.tweens.add({ targets: line2, alpha: 1, y: subtitleY - 8, duration: 420, ease: 'Back.easeOut' })
 
-          // Track boss x while camera is zoomed in
+          // Keep title/subtitle anchored to boss (same offset as after the fly-up tween)
           const followEvent = this.time.addEvent({
             delay: 16, loop: true,
             callback: () => {
               if (!boss.active) return
               line1.x = boss.x
               line2.x = boss.x
+              line1.y = boss.y - 172
+              line2.y = boss.y - 98
             },
           })
 
@@ -421,13 +482,17 @@ export default class GameScene extends Phaser.Scene {
               targets: [overlay, line1, line2], alpha: 0, duration: 420,
               onComplete: () => {
                 overlay.destroy(); line1.destroy(); line2.destroy()
-                if (boss.walkAnim && this.anims.exists(boss.walkAnim)) {
+                if (boss && boss.active && boss.walkAnim && this.anims.exists(boss.walkAnim)) {
                   boss.play(boss.walkAnim, true)
                 }
-                cam.pan(this.player.x, this.player.y, PAN_BACK, 'Sine.easeInOut')
+                const px = this.player?.active ? this.player.x : cam.scrollX + cam.width / 2
+                const py = this.player?.active ? this.player.y : cam.scrollY + cam.height / 2
+                cam.pan(px, py, PAN_BACK, 'Sine.easeInOut')
                 cam.zoomTo(1.0, ZOOM_OUT, 'Sine.easeInOut')
                 this.time.delayedCall(PAN_BACK, () => {
-                  cam.startFollow(this.player, true, 0.18, 0.12)
+                  cam.stopFollow()
+                  this._cinemaMode = false
+                  if (boss && boss.body) boss.body.moves = wasBossMoving
                   onComplete()
                 })
               },
@@ -580,8 +645,9 @@ export default class GameScene extends Phaser.Scene {
     this.enemies = this.enemies.filter(e => e !== enemy)
     this.score += 100
     this.events.emit('score-update', this.score)
-    const activeEnemies = this.enemies.filter(e => e.active)
-    if (activeEnemies.length > 0 || (this.pendingSpawns || 0) > 0) return
+    // Prune any ghost/destroyed refs so we don't get stuck
+    this.enemies = this.enemies.filter(e => e && e.active)
+    if (this.enemies.length > 0 || (this.pendingSpawns || 0) > 0) return
     this.advanceWave()
   }
 
@@ -596,9 +662,10 @@ export default class GameScene extends Phaser.Scene {
 
     this._bossSpawning = false            // unlock for any subsequent boss waves
     this._bananaSpawnedThisWave = false   // reset for next boss encounter
+    this.enemies = this.enemies.filter(e => e && e.active)  // remove defeated boss (never emitted enemy-defeated)
 
     const nextEntry = this.levelData.waves[this.wave]
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(1200, () => {
       if (!nextEntry) {
         this._resumeLevelMusic()
         this.nextLevel()
@@ -654,13 +721,9 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.stop('UI')
 
-      if (next >= LEVELS.length) {
-        this.scene.start('Win', { score: this.score })
-        return
-      }
-
-      // After zone-end levels 4 and 8 → lore scene (L12 goes straight to Win)
       const currentId = this.levelData.id
+
+      // Zone-end lore: after L4, L8, L12 — every 4th level
       if (currentId === 4 || currentId === 8) {
         this.scene.start('Lore', {
           afterLevel: currentId,
@@ -668,9 +731,25 @@ export default class GameScene extends Phaser.Scene {
           score:      this.score,
           lives:      this.lives,
         })
-      } else {
-        this.scene.restart({ level: next + 1, score: this.score, lives: this.lives })
+        return
       }
+
+      if (currentId === 12) {
+        this.scene.start('Lore', {
+          afterLevel: 12,
+          nextLevel:  null,
+          score:      this.score,
+          lives:      this.lives,
+        })
+        return
+      }
+
+      if (next >= LEVELS.length) {
+        this.scene.start('Win', { score: this.score })
+        return
+      }
+
+      this.scene.restart({ level: next + 1, score: this.score, lives: this.lives })
     })
   }
 
@@ -679,11 +758,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   applyDepthScale(sprite) {
+    if (!sprite || !sprite.scene) return
     const range = this.walkBottom - this.walkTop
     const t = Math.max(0, Math.min(1, (sprite.y - this.walkTop) / range))
     const depthScale = 0.55 + t * 0.45
+    const base = sprite._baseDisplayScale ?? 1
     if (sprite.state !== 'special') {
-      sprite.setScale(sprite._baseDisplayScale * depthScale)
+      sprite.setScale(base * depthScale)
     }
     sprite.setDepth(sprite.y)
   }
@@ -695,7 +776,7 @@ export default class GameScene extends Phaser.Scene {
     this.enemies.forEach(e => {
       if (e.active) {
         e.update(time, delta)
-        this.applyDepthScale(e)
+        if (!this._cinemaMode) this.applyDepthScale(e)
       }
     })
     if (this.awaitingAdvance) {
@@ -707,13 +788,15 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    // Right-only camera follow — camera advances as player moves right, never scrolls back
-    const cam  = this.cameras.main
-    const maxX = this.worldW - cam.width
-    const desiredX = this.player.x - cam.width / 2
-    if (desiredX > cam.scrollX) {
-      this._camTargetX = Math.min(desiredX, maxX)
+    // Right-only camera follow — camera advances as player moves right, never scrolls back (disabled during boss intro)
+    if (!this._cinemaMode) {
+      const cam  = this.cameras.main
+      const maxX = this.worldW - cam.width
+      const desiredX = this.player.x - cam.width / 2
+      if (desiredX > cam.scrollX) {
+        this._camTargetX = Math.min(desiredX, maxX)
+      }
+      cam.scrollX = Phaser.Math.Linear(cam.scrollX, this._camTargetX, 0.10)
     }
-    cam.scrollX = Phaser.Math.Linear(cam.scrollX, this._camTargetX, 0.10)
   }
 }

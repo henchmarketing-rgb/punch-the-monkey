@@ -39,8 +39,34 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
 
   setTarget(player) { this.target = player }
 
+  // Minimum distance we try to keep from other enemies so they don’t stack into one blob
+  static get MIN_ENEMY_DISTANCE() { return 56 }
+  static get SEPARATION_STRENGTH() { return 90 }
+
+  /** Returns a velocity offset (vx, vy) to nudge this enemy away from others that are too close. */
+  getSeparationVector() {
+    const list = this.scene && this.scene.enemies
+    if (!list || !Array.isArray(list)) return { vx: 0, vy: 0 }
+    let vx = 0
+    let vy = 0
+    const minD = Enemy.MIN_ENEMY_DISTANCE
+    const strength = Enemy.SEPARATION_STRENGTH
+    for (const other of list) {
+      if (!other?.active || other === this || other.aiState === 'ko') continue
+      const d = Phaser.Math.Distance.Between(this.x, this.y, other.x, other.y)
+      if (d <= 0 || d >= minD) continue
+      // Push away from other; stronger when closer
+      const t = 1 - d / minD
+      const angle = Phaser.Math.Angle.Between(other.x, other.y, this.x, this.y)
+      vx += Math.cos(angle) * strength * t
+      vy += Math.sin(angle) * strength * t
+    }
+    return { vx, vy }
+  }
+
   update(time, delta) {
     if (this.aiState === 'ko') return
+    if (this.scene?._cinemaMode) { this.body.setVelocity(0, 0); return }
 
     if (this.hurtTimer > 0) {
       this.hurtTimer -= delta
@@ -77,7 +103,21 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
 
   chaseTarget() {
     const angle = Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y)
-    this.body.setVelocity(Math.cos(angle) * this.speed, Math.sin(angle) * this.speed * 0.6)
+    let vx = Math.cos(angle) * this.speed
+    let vy = Math.sin(angle) * this.speed * 0.6
+    // Apply distance rule: nudge away from other enemies
+    const sep = this.getSeparationVector()
+    vx += sep.vx
+    vy += sep.vy
+    // Cap total speed so separation doesn’t make movement look erratic
+    const total = Math.sqrt(vx * vx + vy * vy)
+    const maxSpeed = this.speed * 1.4
+    if (total > maxSpeed && total > 0) {
+      const f = maxSpeed / total
+      vx *= f
+      vy *= f
+    }
+    this.body.setVelocity(vx, vy)
   }
 
   doAttack() {

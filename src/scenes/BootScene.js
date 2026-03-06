@@ -24,8 +24,8 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('macaque-hurt',   'assets/sprites/macaque-hurt.png',   { frameWidth: 270, frameHeight: 270 })
 
     // === BOSS SPRITES ===
-    this.load.spritesheet('zookeeper',     'assets/sprites/zookeeper.png',     { frameWidth: 192, frameHeight: 355 })
-    this.load.spritesheet('animal-control','assets/sprites/animal-control.png',{ frameWidth: 384, frameHeight: 407 })
+    this.load.spritesheet('zookeeper',     'assets/sprites/zookeeper.png',     { frameWidth: 512, frameHeight: 443 })
+    this.load.spritesheet('animal-control','assets/sprites/animal-control.png',{ frameWidth: 512, frameHeight: 443 })
 
     // === SOR ENEMY + BOSSES (L9 — Streets of Rage homage) ===
     this.load.spritesheet('sor-enemy',       'assets/sprites/sor-enemy.png',       { frameWidth: 76,  frameHeight: 88  })
@@ -35,7 +35,6 @@ export default class BootScene extends Phaser.Scene {
     // === EFFECTS ===
     this.load.spritesheet('hit-effects',    'assets/sprites/hit-effects.png',    { frameWidth: 144, frameHeight: 144 })
     this.load.spritesheet('boss-shockwave', 'assets/sprites/boss-shockwave.png', { frameWidth: 414, frameHeight: 240 })
-    this.load.spritesheet('boss-fx-ring',   'assets/sprites/boss-fx-ring.png',   { frameWidth: 288, frameHeight: 288 })
     this.load.spritesheet('boss-fx-fire',   'assets/sprites/boss-fx-fire.png',   { frameWidth: 288, frameHeight: 288 })
 
     // === AUDIO ===
@@ -87,6 +86,10 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('bg-forest2', 'assets/backgrounds/bg-forest2.webp')
     // bg-forest3 pending
     this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.webp')
+    this.load.image('bg-level9',  'assets/backgrounds/bg-level9.webp')
+    this.load.image('bg-level10', 'assets/backgrounds/bg-level10.webp')
+    this.load.image('bg-level11', 'assets/backgrounds/bg-level11.webp')
+    this.load.image('bg-level12', 'assets/backgrounds/bg-level12.webp')
     this.load.image('title-bg',   'assets/ui/title-bg.png')
     this.load.image('banana',     'assets/items/banana.png')
 
@@ -158,14 +161,14 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'macaque-hurt',   frames: anims.generateFrameNumbers('macaque-hurt',   { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
 
     // Animal Control boss — 9 frames (384×407): 0-4 walk, 5-7 attack (net swing), 8 hurt
-    anims.create({ key: 'animalcontrol-walk',   frames: anims.generateFrameNumbers('animal-control', { start: 0, end: 4 }), frameRate: 7,  repeat: -1 })
-    anims.create({ key: 'animalcontrol-attack', frames: anims.generateFrameNumbers('animal-control', { start: 5, end: 7 }), frameRate: 9,  repeat: 0  })
-    anims.create({ key: 'animalcontrol-hurt',   frames: anims.generateFrameNumbers('animal-control', { start: 8, end: 8 }), frameRate: 6,  repeat: 0  })
+    anims.create({ key: 'animalcontrol-walk',   frames: anims.generateFrameNumbers('animal-control', { start: 0, end: 1 }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'animalcontrol-attack', frames: anims.generateFrameNumbers('animal-control', { start: 2, end: 3 }), frameRate: 9,  repeat: 0  })
+    anims.create({ key: 'animalcontrol-hurt',   frames: anims.generateFrameNumbers('animal-control', { start: 3, end: 3 }), frameRate: 6,  repeat: 0  })
 
     // Zookeeper boss — 8 frames (192×355): 0-4 walk, 5-6 attack, 7 hurt
-    anims.create({ key: 'zookeeper-walk',   frames: anims.generateFrameNumbers('zookeeper', { start: 0, end: 4 }), frameRate: 7,  repeat: -1 })
-    anims.create({ key: 'zookeeper-attack', frames: anims.generateFrameNumbers('zookeeper', { start: 5, end: 6 }), frameRate: 9,  repeat: 0  })
-    anims.create({ key: 'zookeeper-hurt',   frames: anims.generateFrameNumbers('zookeeper', { start: 7, end: 7 }), frameRate: 6,  repeat: 0  })
+    anims.create({ key: 'zookeeper-walk',   frames: anims.generateFrameNumbers('zookeeper', { start: 0, end: 1 }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'zookeeper-attack', frames: anims.generateFrameNumbers('zookeeper', { start: 2, end: 3 }), frameRate: 9,  repeat: 0  })
+    anims.create({ key: 'zookeeper-hurt',   frames: anims.generateFrameNumbers('zookeeper', { start: 3, end: 3 }), frameRate: 6,  repeat: 0  })
 
     // SoR grunt — 6 cols × 3 rows, 76×88
     // Frames 4, 11, 16, 17 are corrupt (empty/test pattern/ripper credits) — skipped
@@ -188,7 +191,6 @@ export default class BootScene extends Phaser.Scene {
 
     anims.create({ key: 'hit-spark',      frames: anims.generateFrameNumbers('hit-effects',    { start: 0, end: 3 }), frameRate: 16, repeat: 0 })
     anims.create({ key: 'boss-shockwave', frames: anims.generateFrameNumbers('boss-shockwave', { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
-    anims.create({ key: 'boss-fx-ring',   frames: anims.generateFrameNumbers('boss-fx-ring',   { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
     anims.create({ key: 'boss-fx-fire',   frames: anims.generateFrameNumbers('boss-fx-fire',   { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
 
     // ── UV inset: add 0.5px inset to all spritesheet frames to prevent sub-pixel bleed ──
@@ -197,11 +199,13 @@ export default class BootScene extends Phaser.Scene {
       'punch-walk','punch-attack','punch-kick','punch-hurt','punch-special',
       'gorilla-walk','gorilla-slam','gorilla-attack','gorilla-chest',
       'macaque-walk','macaque-attack','macaque-hurt',
-      'hit-effects','boss-shockwave','boss-fx-ring','boss-fx-fire',
+      'zookeeper','animal-control','sor-enemy','sor-boss-zamza','sor-boss-jack',
+      'hit-effects','boss-shockwave','boss-fx-fire',
     ]
     // Force NEAREST-neighbour filtering on gorilla textures (belt + suspenders on top of pixelArt:true)
     // Prevents sub-pixel bilinear bleed when the boss is scaled to 1.33×
-    ;['gorilla-walk','gorilla-slam','gorilla-attack','gorilla-chest'].forEach(key => {
+    ;['gorilla-walk','gorilla-slam','gorilla-attack','gorilla-chest',
+      'zookeeper','animal-control','sor-boss-zamza','sor-boss-jack'].forEach(key => {
       if (this.textures.exists(key)) {
         this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST)
       }

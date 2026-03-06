@@ -247,9 +247,11 @@ export default class UIScene extends Phaser.Scene {
     pauseBtn.on('pointerdown', () => this.togglePause())
     this.pauseBtn = pauseBtn
 
-    // Keyboard pause
-    this.input.keyboard.on('keydown-P',   () => this.togglePause())
-    this.input.keyboard.on('keydown-ESC', () => this.togglePause())
+    // Keyboard pause (guard for environments where keyboard may be null)
+    if (this.input.keyboard) {
+      this.input.keyboard.on('keydown-P',   () => this.togglePause())
+      this.input.keyboard.on('keydown-ESC', () => this.togglePause())
+    }
 
     // ── DEV: GOD MODE BUTTON (remove before ship) ──
     this._godMode = false
@@ -267,7 +269,7 @@ export default class UIScene extends Phaser.Scene {
     })
 
     // G key toggle
-    this.input.keyboard.on('keydown-G', () => godBtn.emit('pointerdown'))
+    if (this.input.keyboard) this.input.keyboard.on('keydown-G', () => godBtn.emit('pointerdown'))
     this._godBtn = godBtn
 
     // ── DEV: LEVEL NAV BUTTONS (remove before ship) ──
@@ -280,7 +282,12 @@ export default class UIScene extends Phaser.Scene {
       const cur   = game?.levelData?.id || 1
       const prev  = Math.max(1, cur - 1)
       this.scene.stop('UI')
-      game.scene.restart({ level: prev, score: 0, lives: 3 })
+      if (prev === 1 && cur === 1) {
+        game.scene.stop()
+        this.scene.start('Story')
+      } else {
+        game.scene.restart({ level: prev, score: 0, lives: 3 })
+      }
     })
 
     const nextBtn = this.add.text(138, height - 14, 'LVL ▶', btnStyle)
@@ -288,9 +295,22 @@ export default class UIScene extends Phaser.Scene {
     nextBtn.on('pointerdown', () => {
       const game  = this.scene.get('Game')
       const cur   = game?.levelData?.id || 1
-      const next  = Math.min(12, cur + 1)
+      const next  = cur + 1
       this.scene.stop('UI')
-      game.scene.restart({ level: next, score: 0, lives: 3 })
+      if (cur === 4 || cur === 8 || cur === 12) {
+        game.scene.stop()
+        this.scene.start('Lore', {
+          afterLevel: cur,
+          nextLevel:  next > 12 ? null : next,
+          score:      0,
+          lives:      3,
+        })
+      } else if (next > 12) {
+        game.scene.stop()
+        this.scene.start('Win', { score: 0 })
+      } else {
+        game.scene.restart({ level: next, score: 0, lives: 3 })
+      }
     })
 
     // ── EVENTS FROM GAME ──

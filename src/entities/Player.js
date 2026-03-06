@@ -41,16 +41,20 @@ export default class Player extends Phaser.GameObjects.Sprite {
     // Cinematic freeze — set true during boss intro to lock all input
     this._frozen = false
 
-    // Keyboard
-    this.keys = scene.input.keyboard.addKeys({
-      left:    Phaser.Input.Keyboard.KeyCodes.LEFT,
-      right:   Phaser.Input.Keyboard.KeyCodes.RIGHT,
-      up:      Phaser.Input.Keyboard.KeyCodes.UP,
-      down:    Phaser.Input.Keyboard.KeyCodes.DOWN,
-      punch:   Phaser.Input.Keyboard.KeyCodes.Z,
-      kick:    Phaser.Input.Keyboard.KeyCodes.X,
-      special: Phaser.Input.Keyboard.KeyCodes.A,
-    })
+    // Keyboard (guard for environments where keyboard may be null, e.g. some mobile)
+    const noopKey = { isDown: false, justDown: false }
+    const keyNames = ['left', 'right', 'up', 'down', 'punch', 'kick', 'special']
+    this.keys = scene.input.keyboard
+      ? scene.input.keyboard.addKeys({
+          left:    Phaser.Input.Keyboard.KeyCodes.LEFT,
+          right:   Phaser.Input.Keyboard.KeyCodes.RIGHT,
+          up:      Phaser.Input.Keyboard.KeyCodes.UP,
+          down:    Phaser.Input.Keyboard.KeyCodes.DOWN,
+          punch:   Phaser.Input.Keyboard.KeyCodes.Z,
+          kick:    Phaser.Input.Keyboard.KeyCodes.X,
+          special: Phaser.Input.Keyboard.KeyCodes.A,
+        })
+      : Object.fromEntries(keyNames.map(n => [n, noopKey]))
 
     this.on('animationcomplete', (anim) => {
       if (['punch-attack','punch-kick','punch-hurt','punch-special'].includes(anim.key)) {

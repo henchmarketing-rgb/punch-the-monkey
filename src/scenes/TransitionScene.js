@@ -60,7 +60,7 @@ export default class TransitionScene extends Phaser.Scene {
     })
 
     // Skippable
-    this.input.keyboard.once('keydown', () => this.scene.stop())
-    this.input.once('pointerdown',      () => this.scene.stop())
+    if (this.input.keyboard) this.input.keyboard.once('keydown', () => this.scene.stop())
+    this.input.once('pointerdown', () => this.scene.stop())
   }
 }

@@ -10,28 +10,52 @@ const ACTS = {
     '',
     'He didn\'t look back.',
     '',
+    'Beyond the zoo: pavement and neon.',
+    'Sirens in the distance. The city never slept.',
+    '',
     'The city waited.',
     'He\'d heard it smelled like exhaust and ambition.',
     'He didn\'t care.',
+    '',
+    'Something in his chest beat faster.',
+    'He tightened his grip on the toy.',
+    '',
+    '— ONWARD —',
   ],
   8: [
     'The city tried to swallow him.',
     '',
     'Alleys. Construction dust.',
-    'Men with whistles.',
+    'Men with whistles. Lights that never went out.',
+    '',
+    'He ran when he had to.',
+    'He hid when he had to.',
     '',
     'He kept the toy pressed to his chest.',
     'He kept moving.',
+    '',
+    'Then the buildings thinned.',
+    'The sky showed through.',
+    '',
+    '— THE EDGE OF TOWN —',
   ],
   12: [
     'The streets ended where the trees began.',
     '',
     'No signs. No fences.',
+    'No one to tell him he couldn\'t.',
     '',
     'He stopped for the first time.',
+    '',
     'The forest asked nothing of him.',
+    'No cages. No keys. No names.',
     '',
     'He breathed.',
+    '',
+    'Somewhere above, a bird called.',
+    'Somewhere ahead, the path went on.',
+    '',
+    '— HOME —',
   ],
 }
 
@@ -55,6 +79,7 @@ export default class LoreScene extends Phaser.Scene {
         ['music-boss-final', 'assets/audio/music-boss-final.mp3'],
         ['music-credits',    'assets/audio/music-credits.mp3'],
       ],
+      12: [],
     }[this.afterLevel] || []
 
     toLoad.forEach(([key, path]) => {
@@ -122,8 +147,8 @@ export default class LoreScene extends Phaser.Scene {
 
     // Skip on tap/key (with brief lockout)
     this.time.delayedCall(1200, () => {
-      this.input.once('pointerdown',     () => this._advance())
-      this.input.keyboard.once('keydown', () => this._advance())
+      this.input.once('pointerdown', () => this._advance())
+      if (this.input.keyboard) this.input.keyboard.once('keydown', () => this._advance())
     })
 
     // "tap to skip" hint
@@ -143,11 +168,15 @@ export default class LoreScene extends Phaser.Scene {
     this.cameras.main.fadeOut(600, 0, 0, 0)
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.stop('UI')
-      this.scene.start('Game', {
-        level: this.nextLevel,
-        score: this.score,
-        lives: this.lives,
-      })
+      if (this.nextLevel == null) {
+        this.scene.start('Win', { score: this.score })
+      } else {
+        this.scene.start('Game', {
+          level: this.nextLevel,
+          score: this.score,
+          lives: this.lives,
+        })
+      }
     })
   }
 }

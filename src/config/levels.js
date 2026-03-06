@@ -71,7 +71,7 @@ export const LEVELS = [
       { count: 8,  hp: 55, speed: 128, damage: 10 },
       { count: 12, hp: 55, speed: 132, damage: 10 },
       { count: 16, hp: 55, speed: 135, damage: 10 },
-      { boss: true, count: 1, easter: true },   // 🦍 DK easter egg
+      { boss: true, count: 1, sorBoss: 'animalcontrol' },
     ],
   },
   {
@@ -101,16 +101,15 @@ export const LEVELS = [
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
     id: 9, zone: 'wild', name: 'The Forest',
-    bg: 'bg-forest2', 
+    bg: 'bg-level9', 
     waves: [
       { count: 8,  hp: 55, speed: 138, damage: 10 },
       { count: 14, hp: 55, speed: 142, damage: 10 },
-      { boss: true, count: 2, sorBoss: 'animalcontrol' },
     ],
   },
   {
     id: 10, zone: 'wild', name: 'The Deep Woods',
-    bg: 'bg-forest4', 
+    bg: 'bg-level10', 
     waves: [
       { count: 10, hp: 55, speed: 146, damage: 10 },
       { count: 16, hp: 55, speed: 150, damage: 10 },
@@ -120,7 +119,7 @@ export const LEVELS = [
   },
   {
     id: 11, zone: 'wild', name: 'Into the Dark',
-    bg: 'bg-forest', 
+    bg: 'bg-level11', 
     waves: [
       { count: 10, hp: 55, speed: 150, damage: 10 },
       { count: 16, hp: 55, speed: 154, damage: 10 },
@@ -131,7 +130,7 @@ export const LEVELS = [
   },
   {
     id: 12, zone: 'wild', name: 'HOME',
-    bg: 'bg-escape4', 
+    bg: 'bg-level12', 
     waves: [
       { count: 10, hp: 55, speed: 154, damage: 10 },
       { count: 16, hp: 55, speed: 158, damage: 10 },

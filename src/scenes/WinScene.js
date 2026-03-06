@@ -269,7 +269,7 @@ export default class WinScene extends Phaser.Scene {
     this.tweens.add({ targets: skipTxt, alpha: 0.3, duration: 900, yoyo: true, repeat: -1 })
 
     const skip = () => { this.scrollTween?.stop(); this.showPlayAgain() }
-    this.input.keyboard.once('keydown', skip)
+    if (this.input.keyboard) this.input.keyboard.once('keydown', skip)
     this.input.once('pointerdown', skip)
 
     this.cameras.main.fadeIn(800, 0, 0, 0)
