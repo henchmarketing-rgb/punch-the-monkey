@@ -85,8 +85,10 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('bg-forest2', 'assets/backgrounds/bg-forest2.webp')
     // bg-forest3 pending
     this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.webp')
-    this.load.image('title-bg',  'assets/ui/title-bg.png')
-    this.load.image('banana',    'assets/items/banana.png')
+    // Load banana logo FIRST — filecomplete fires as soon as it's ready so it shows during the rest of loading
+    this.load.image('logo-banana','assets/ui/logo-banana.png')
+    this.load.image('title-bg',   'assets/ui/title-bg.png')
+    this.load.image('banana',     'assets/items/banana.png')
 
     // Fallback
     this.createFallbackBG()
@@ -103,6 +105,11 @@ export default class BootScene extends Phaser.Scene {
     const label = this.add.text(width / 2, by + 28, 'LOADING...', {
       fontSize: '13px', fontFamily: 'monospace', color: '#888888'
     }).setOrigin(0.5).setDepth(11)
+
+    // Show banana logo as soon as its file finishes loading (first in queue — near instant)
+    this.load.once('filecomplete-image-logo-banana', () => {
+      this.add.image(width / 2, by - 90, 'logo-banana').setDepth(10)
+    })
 
     this.load.on('progress', (v) => {
       fill.width = barW * v
