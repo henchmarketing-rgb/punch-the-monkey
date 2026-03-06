@@ -41,10 +41,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
     // Cinematic freeze — set true during boss intro to lock all input
     this._frozen = false
 
-    // Touch controls (set by UIScene)
-    this.touchKeys = { left: false, right: false, up: false, down: false, punch: false, kick: false, special: false }
-    this._prevTouch = { punch: false, kick: false, special: false }
-
     // Keyboard
     this.keys = scene.input.keyboard.addKeys({
       left:    Phaser.Input.Keyboard.KeyCodes.LEFT,
@@ -100,13 +96,11 @@ export default class Player extends Phaser.GameObjects.Sprite {
     }
 
     const k = this.keys
-    const t = this.touchKeys
-    const prev = this._prevTouch
 
-    const movingLeft  = k.left.isDown  || t.left
-    const movingRight = k.right.isDown || t.right
-    const movingUp    = k.up.isDown    || t.up
-    const movingDown  = k.down.isDown  || t.down
+    const movingLeft  = k.left.isDown
+    const movingRight = k.right.isDown
+    const movingUp    = k.up.isDown
+    const movingDown  = k.down.isDown
     const isMoving    = movingLeft || movingRight || movingUp || movingDown
 
     if (movingLeft)       { this.body.setVelocityX(-this.speed); this.facingRight = false }
@@ -119,16 +113,11 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
     this.setFlipX(!this.facingRight)
 
-    // Touch "just pressed" detection
-    const specialJust  = t.special && !prev.special
-    const punchJust    = t.punch   && !prev.punch
-    const kickJust     = t.kick    && !prev.kick
-
-    if ((Phaser.Input.Keyboard.JustDown(k.special) || specialJust) && this.specialCooldown <= 0) {
+    if (Phaser.Input.Keyboard.JustDown(k.special) && this.specialCooldown <= 0) {
       this.doSpecial()
-    } else if ((Phaser.Input.Keyboard.JustDown(k.punch) || punchJust) && this.attackCooldown <= 0 && !this.isAttacking) {
+    } else if (Phaser.Input.Keyboard.JustDown(k.punch) && this.attackCooldown <= 0 && !this.isAttacking) {
       this.doAttack('punch')
-    } else if ((Phaser.Input.Keyboard.JustDown(k.kick)  || kickJust)  && this.attackCooldown <= 0 && !this.isAttacking) {
+    } else if (Phaser.Input.Keyboard.JustDown(k.kick) && this.attackCooldown <= 0 && !this.isAttacking) {
       this.doAttack('kick')
     } else if (!this.isAttacking) {
       if (isMoving && this.state !== 'walk') {
@@ -142,11 +131,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
         this._applyScale('normal')
       }
     }
-
-    // Store prev touch state for JustDown detection
-    prev.punch   = t.punch
-    prev.kick    = t.kick
-    prev.special = t.special
 
     // Depth is managed by GameScene.applyDepthScale()
   }

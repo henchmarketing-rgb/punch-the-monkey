@@ -195,10 +195,7 @@ export default class UIScene extends Phaser.Scene {
     })
 
     // Controls reference row
-    const isPauseMenuMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-    const ctrlItems = isPauseMenuMobile
-      ? [{ icon: '🕹️', desc: 'Move' }, { icon: '🥊', desc: 'Punch' }, { icon: '🦵', desc: 'Kick' }, { icon: '⭐', desc: 'Special' }]
-      : [{ icon: '↑←↓→', desc: 'Move' }, { icon: 'Z', desc: 'Punch' }, { icon: 'X', desc: 'Kick' }, { icon: 'A', desc: 'Special' }]
+    const ctrlItems = [{ icon: '↑←↓→', desc: 'Move' }, { icon: 'Z', desc: 'Punch' }, { icon: 'X', desc: 'Kick' }, { icon: 'A', desc: 'Special' }]
 
     const ctrlDivider = this.add.graphics()
     ctrlDivider.lineStyle(1, 0x3da820, 0.3)
@@ -251,11 +248,6 @@ export default class UIScene extends Phaser.Scene {
     // Keyboard pause
     this.input.keyboard.on('keydown-P',   () => this.togglePause())
     this.input.keyboard.on('keydown-ESC', () => this.togglePause())
-
-    // ── TOUCH CONTROLS ──
-    // Only show touch controls on mobile / touch devices
-    const isMobile = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-    if (isMobile) this.createTouchControls()
 
     // ── EVENTS FROM GAME ──
     game.events.on('score-update', (score) => {
@@ -439,19 +431,12 @@ export default class UIScene extends Phaser.Scene {
   showControlsPopup() {
     const { width, height } = this.scale
     const DEPTH = 200
-    const items = this.sys.game.device.input.touch || window.matchMedia('(pointer: coarse)').matches
-      ? [
-          { icon: '🕹️', desc: 'Move'    },
-          { icon: '🥊', desc: 'Punch'   },
-          { icon: '🦵', desc: 'Kick'    },
-          { icon: '⭐', desc: 'Special' },
-        ]
-      : [
-          { icon: '↑←↓→', desc: 'Move'    },
-          { icon: 'Z',     desc: 'Punch'   },
-          { icon: 'X',     desc: 'Kick'    },
-          { icon: 'A',     desc: 'Special' },
-        ]
+    const items = [
+      { icon: '↑←↓→', desc: 'Move'    },
+      { icon: 'Z',     desc: 'Punch'   },
+      { icon: 'X',     desc: 'Kick'    },
+      { icon: 'A',     desc: 'Special' },
+    ]
 
     const cardW = 340, cardH = 155
     const cx = width / 2, cy = height / 2

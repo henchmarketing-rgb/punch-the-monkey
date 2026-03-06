@@ -2,22 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PUNCH-KUN 🐒</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0;
       width: 100vw; height: 100vh;
-      background: #000 !important;
+      background: #000;
       overflow: hidden;
-      touch-action: none;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none; user-select: none;
     }
     #game-container {
       position: fixed;
@@ -31,79 +24,11 @@
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      touch-action: none;
-    }
-  </style>
-  <style>
-    #rotate-prompt {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #000;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-family: monospace;
-      text-align: center;
-      gap: 20px;
-    }
-    #rotate-prompt .icon {
-      font-size: 64px;
-      animation: spin90 1.2s ease-in-out infinite alternate;
-    }
-    #rotate-prompt p {
-      font-size: 16px;
-      color: #8acc44;
-      letter-spacing: 0.05em;
-    }
-    @keyframes spin90 {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(90deg); }
-    }
-    #rotate-prompt .skip {
-      margin-top: 12px;
-      font-size: 11px;
-      color: #444;
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
     }
   </style>
 </head>
 <body>
   <div id="game-container"></div>
-  <div id="rotate-prompt">
-    <div class="icon">📱</div>
-    <p>ROTATE YOUR DEVICE</p>
-    <p style="font-size:12px;color:#555;">This game is best played in landscape</p>
-    <span class="skip" onclick="document.getElementById('rotate-prompt').style.display='none'">tap to continue anyway</span>
-  </div>
   <script type="module" src="/src/main.js"></script>
-  <script>
-    // Orientation lock attempt (PWA/Android only — silently fails elsewhere)
-    try {
-      if (screen.orientation && typeof screen.orientation.lock === 'function') {
-        const p = screen.orientation.lock('landscape')
-        if (p && typeof p.catch === 'function') p.catch(() => {})
-      }
-    } catch (e) {}
-
-    // JS-based rotate prompt — more reliable than CSS media query in webviews (Discord etc.)
-    const prompt = document.getElementById('rotate-prompt')
-    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-
-    function checkOrientation() {
-      if (!isMobileDevice) { prompt.style.display = 'none'; return }
-      const isPortrait = window.innerHeight > window.innerWidth
-      prompt.style.display = isPortrait ? 'flex' : 'none'
-    }
-
-    checkOrientation()
-    window.addEventListener('resize', checkOrientation)
-    screen.orientation && screen.orientation.addEventListener
-      && screen.orientation.addEventListener('change', checkOrientation)
-  </script>
 </body>
 </html>
