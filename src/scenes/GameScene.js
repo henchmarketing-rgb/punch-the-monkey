@@ -112,11 +112,12 @@ export default class GameScene extends Phaser.Scene {
           ? Phaser.Math.Between(this.walkTop + 20,  this.walkTop  + 80)
           : Phaser.Math.Between(this.walkBottom - 80, this.walkBottom - 20)
 
+        const isSoR = this.levelData.enemyType === 'sor'
         const e = new Enemy(this, spawnX, y, {
-          texture:    'macaque-walk',
-          walkAnim:   'macaque-walk',
-          attackAnim: 'macaque-attack',
-          hurtAnim:   'macaque-hurt',
+          texture:    isSoR ? 'sor-enemy'      : 'macaque-walk',
+          walkAnim:   isSoR ? 'sor-walk'       : 'macaque-walk',
+          attackAnim: isSoR ? 'sor-attack'     : 'macaque-attack',
+          hurtAnim:   isSoR ? 'sor-hurt'       : 'macaque-hurt',
           hp:     waveCfg.hp,
           speed:  waveCfg.speed,
           damage: waveCfg.damage,

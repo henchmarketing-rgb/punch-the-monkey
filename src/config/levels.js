@@ -96,6 +96,7 @@ export const LEVELS = [
   {
     id: 9, zone: 'wild', name: 'Night Market',
     bg: 'bg-street', musicKey: 'music-forest1',
+    enemyType: 'sor',   // Streets of Rage homage — replace macaques with SoR enemy
     waves: [
       { count: 10, hp: 45, speed: 142, damage: 10 },
       { count: 16, hp: 45, speed: 146, damage: 10 },

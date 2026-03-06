@@ -22,6 +22,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('macaque-attack', 'assets/sprites/macaque-attack.png', { frameWidth: 390, frameHeight: 300 })
     this.load.spritesheet('macaque-hurt',   'assets/sprites/macaque-hurt.png',   { frameWidth: 270, frameHeight: 270 })
 
+    // === SOR ENEMY (L9 — Streets of Rage homage) ===
+    this.load.spritesheet('sor-enemy', 'assets/sprites/sor-enemy.png', { frameWidth: 76, frameHeight: 88 })
+
     // === EFFECTS ===
     this.load.spritesheet('hit-effects',    'assets/sprites/hit-effects.png',    { frameWidth: 144, frameHeight: 144 })
     this.load.spritesheet('boss-shockwave', 'assets/sprites/boss-shockwave.png', { frameWidth: 414, frameHeight: 240 })
@@ -123,6 +126,11 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'macaque-walk',   frames: anims.generateFrameNumbers('macaque-walk',   { start: 0, end: 3 }), frameRate: 7, repeat: -1 })
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'macaque-hurt',   frames: anims.generateFrameNumbers('macaque-hurt',   { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
+
+    // SoR enemy — 6 cols × 3 rows, 76×88 per frame
+    anims.create({ key: 'sor-walk',   frames: anims.generateFrameNumbers('sor-enemy', { start: 0,  end: 5  }), frameRate: 8,  repeat: -1 })
+    anims.create({ key: 'sor-attack', frames: anims.generateFrameNumbers('sor-enemy', { start: 6,  end: 11 }), frameRate: 10, repeat: 0  })
+    anims.create({ key: 'sor-hurt',   frames: anims.generateFrameNumbers('sor-enemy', { start: 12, end: 17 }), frameRate: 8,  repeat: 0  })
 
     anims.create({ key: 'hit-spark',      frames: anims.generateFrameNumbers('hit-effects',    { start: 0, end: 3 }), frameRate: 16, repeat: 0 })
     anims.create({ key: 'boss-shockwave', frames: anims.generateFrameNumbers('boss-shockwave', { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
