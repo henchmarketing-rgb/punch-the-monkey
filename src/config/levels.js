@@ -16,7 +16,7 @@ export const LEVELS = [
   // ─── ZONE 1 — ZOO ────────────────────────────────────────────────────────
   {
     id: 1, zone: 'zoo', name: 'Monkey Mountain',
-    bg: 'bg-zoo', musicKey: 'music-level1',
+    bg: 'bg-zoo', musicKey: 'music-zoo',
     waves: [
       { count: 3,  hp: 45, speed: 95,  damage: 10 },
       { count: 6,  hp: 45, speed: 100, damage: 10 },
@@ -25,7 +25,7 @@ export const LEVELS = [
   },
   {
     id: 2, zone: 'zoo', name: 'The Reptile House',
-    bg: 'bg-zoo2', musicKey: 'music-level1',
+    bg: 'bg-zoo2', musicKey: 'music-zoo',
     waves: [
       { count: 4,  hp: 45, speed: 105, damage: 10 },
       { count: 8,  hp: 45, speed: 110, damage: 10 },
@@ -34,7 +34,7 @@ export const LEVELS = [
   },
   {
     id: 3, zone: 'zoo', name: "The Keeper's Yard",
-    bg: 'bg-zoo3', musicKey: 'music-level1',   // ⏳ pending
+    bg: 'bg-zoo3', musicKey: 'music-zoo',   // ⏳ pending
     waves: [
       { count: 6,  hp: 45, speed: 112, damage: 10 },
       { count: 10, hp: 45, speed: 118, damage: 10 },
@@ -43,7 +43,7 @@ export const LEVELS = [
   },
   {
     id: 4, zone: 'zoo', name: 'The Primate Enclosure',
-    bg: 'bg-zoo4', musicKey: 'music-level1',
+    bg: 'bg-zoo4', musicKey: 'music-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 118, damage: 10 },
       { count: 12, hp: 45, speed: 123, damage: 10 },
