@@ -184,6 +184,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
     if (this.state === 'ko') return
     // I-frames: while hurtTimer is active, player is invincible
     if (this.hurtTimer > 0) return
+    // DEV: god mode — no damage taken
+    if (this._godMode) return
     this._resetRegen()
     this.hp -= damage
     this.hurtTimer = 600   // 600ms i-frames — survives multi-enemy pileups cleanly

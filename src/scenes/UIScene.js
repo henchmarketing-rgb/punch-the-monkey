@@ -249,6 +249,25 @@ export default class UIScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-P',   () => this.togglePause())
     this.input.keyboard.on('keydown-ESC', () => this.togglePause())
 
+    // ── DEV: GOD MODE BUTTON (remove before ship) ──
+    this._godMode = false
+    const godBtn = this.add.text(20, height - 14, '☠ GOD OFF', {
+      fontSize: '11px', fontFamily: 'monospace', color: '#555555',
+      backgroundColor: '#11110fee', padding: { x: 6, y: 3 }
+    }).setOrigin(0, 1).setDepth(100).setInteractive()
+
+    godBtn.on('pointerdown', () => {
+      this._godMode = !this._godMode
+      const game = this.scene.get('Game')
+      if (game?.player) game.player._godMode = this._godMode
+      godBtn.setText(this._godMode ? '⚡ GOD ON' : '☠ GOD OFF')
+      godBtn.setStyle({ color: this._godMode ? '#ffe000' : '#555555' })
+    })
+
+    // G key toggle
+    this.input.keyboard.on('keydown-G', () => godBtn.emit('pointerdown'))
+    this._godBtn = godBtn
+
     // ── EVENTS FROM GAME ──
     game.events.on('score-update', (score) => {
       this.scoreText.setText('SCORE ' + score)
