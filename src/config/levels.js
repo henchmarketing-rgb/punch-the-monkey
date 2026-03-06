@@ -16,7 +16,7 @@ export const LEVELS = [
   // ─── ZONE 1 — ZOO ────────────────────────────────────────────────────────
   {
     id: 1, zone: 'zoo', name: 'Monkey Mountain',
-    bg: 'bg-zoo', musicKey: 'music-zoo',
+    bg: 'bg-zoo3', musicKey: 'music-zoo',
     waves: [
       { count: 3,  hp: 45, speed: 95,  damage: 10 },
       { count: 6,  hp: 45, speed: 100, damage: 10 },
@@ -34,7 +34,7 @@ export const LEVELS = [
   },
   {
     id: 3, zone: 'zoo', name: 'The Primate Enclosure',
-    bg: 'bg-zoo3', musicKey: 'music-zoo',
+    bg: 'bg-zoo4', musicKey: 'music-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 112, damage: 10 },
       { count: 10, hp: 45, speed: 118, damage: 10 },
@@ -43,7 +43,7 @@ export const LEVELS = [
   },
   {
     id: 4, zone: 'zoo', name: 'The Great Escape',
-    bg: 'bg-zoo4', musicKey: 'music-zoo',
+    bg: 'bg-zoo', musicKey: 'music-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 118, damage: 10 },
       { count: 12, hp: 45, speed: 123, damage: 10 },
@@ -99,7 +99,7 @@ export const LEVELS = [
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
     id: 9, zone: 'wild', name: 'The Forest',
-    bg: 'bg-escape4', musicKey: 'music-forest1',  // ⏳ bg-escape4 pending
+    bg: 'bg-forest', musicKey: 'music-forest1',  // ⏳ bg-escape4 pending
     waves: [
       { count: 8,  hp: 45, speed: 138, damage: 10 },
       { count: 14, hp: 45, speed: 142, damage: 10 },
@@ -118,7 +118,7 @@ export const LEVELS = [
   },
   {
     id: 11, zone: 'wild', name: 'Into the Dark',
-    bg: 'bg-forest', musicKey: 'music-forest2',
+    bg: 'bg-escape4', musicKey: 'music-forest2',
     waves: [
       { count: 10, hp: 45, speed: 150, damage: 10 },
       { count: 16, hp: 45, speed: 154, damage: 10 },
