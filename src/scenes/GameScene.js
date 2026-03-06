@@ -131,29 +131,28 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  spawnBoss(offsetX = 0, hpMultiplier = 1, sorBossType = null) {
-    const cam    = this.cameras.main
-    const spawnX = Math.min(cam.scrollX + cam.width + 80 + offsetX, this.worldW - 30)
-    const spawnY = Phaser.Math.Between(this.walkTop + 60, this.walkBottom - 40)
-    let boss
-
-    if (sorBossType === 'zamza') {
-      boss = new Enemy(this, spawnX, spawnY, {
-        texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',
-        attackAnim: 'zamza-attack', hurtAnim: 'zamza-hurt',
-        hp: Math.round(675 * hpMultiplier), speed: 155, damage: 20,
-        type: 'boss', displayScale: 1.6,
-      })
-    } else if (sorBossType === 'gunner') {
-      boss = new Enemy(this, spawnX, spawnY, {
-        texture: 'sor-boss-gunner', walkAnim: 'gunner-walk',
-        attackAnim: 'gunner-attack', hurtAnim: 'gunner-hurt',
-        hp: Math.round(675 * hpMultiplier), speed: 140, damage: 20,
-        type: 'boss', displayScale: 1.6,
-      })
-    } else {
-      boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
+  _makeSorBoss(type, x, y, hpMultiplier) {
+    const configs = {
+      zamza:  { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk', attackAnim: 'zamza-attack', hurtAnim: 'zamza-hurt', speed: 155 },
+      jack:   { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',  attackAnim: 'jack-attack',  hurtAnim: 'jack-hurt',  speed: 140 },
+      electra:{ texture: 'sor-boss-electra',walkAnim:'electra-walk',attackAnim:'electra-attack',hurtAnim:'electra-hurt',speed: 148 },
     }
+    const cfg = configs[type]
+    if (!cfg || !this.textures.exists(cfg.texture)) return null
+    return new Enemy(this, x, y, {
+      ...cfg, hp: Math.round(675 * hpMultiplier), damage: 20, type: 'boss', displayScale: 1.6,
+    })
+  }
+
+  spawnBoss(offsetX = 0, hpMultiplier = 1, sorBossType = null, fromLeft = false) {
+    const cam    = this.cameras.main
+    const spawnX = fromLeft
+      ? Math.max(cam.scrollX - 80 - offsetX, 30)
+      : Math.min(cam.scrollX + cam.width + 80 + offsetX, this.worldW - 30)
+    const spawnY = Phaser.Math.Between(this.walkTop + 60, this.walkBottom - 40)
+
+    let boss = sorBossType ? this._makeSorBoss(sorBossType, spawnX, spawnY, hpMultiplier) : null
+    if (!boss) boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
 
     boss.setTarget(this.player)
     boss.body.setCollideWorldBounds(true)
@@ -162,11 +161,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   spawnMultipleBosses(count, hpMultiplier = 1, sorBossType = null) {
+    // 'jack+zamza' = paired dual boss, one from each side
+    if (sorBossType === 'jack+zamza') {
+      this.activeBossCount = 2
+      const jack  = this.spawnBoss(0,   hpMultiplier, 'jack',  false)  // right
+      const zamza = this.spawnBoss(0,   hpMultiplier, 'zamza', true)   // left
+      this.boss = jack
+      return jack
+    }
     this.activeBossCount = count
     const bosses = []
     for (let i = 0; i < count; i++) {
-      const boss = this.spawnBoss(i * 220, hpMultiplier, sorBossType)
-      bosses.push(boss)
+      bosses.push(this.spawnBoss(i * 220, hpMultiplier, sorBossType))
     }
     this.boss = bosses[0]
     return bosses[0]
@@ -252,10 +258,16 @@ export default class GameScene extends Phaser.Scene {
             subtitle = '— THIS FEELS FAMILIAR —'
           } else if (sorBoss === 'zamza') {
             title    = 'ZAMZA'
+            subtitle = '— THE CLAWS —'
+          } else if (sorBoss === 'jack') {
+            title    = 'JACK'
+            subtitle = '— THE KNIFE —'
+          } else if (sorBoss === 'electra') {
+            title    = 'ELECTRA'
             subtitle = '— STREETS OF RAGE —'
-          } else if (sorBoss === 'gunner') {
-            title    = 'BOSS FIGHT'
-            subtitle = '— ARMED AND DANGEROUS —'
+          } else if (sorBoss === 'jack+zamza') {
+            title    = 'JACK  &  ZAMZA'
+            subtitle = '— TOGETHER —'
           } else if (count >= 2) {
             title    = 'BOSS FIGHT'
             subtitle = `— × ${count} ANGRY GORILLAS —`

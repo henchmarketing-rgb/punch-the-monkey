@@ -103,7 +103,7 @@ export const LEVELS = [
       { boss: true, count: 1, sorBoss: 'zamza' },      // Zamza — boss 1
       { count: 20, hp: 45, speed: 149, damage: 10 },
       { count: 22, hp: 45, speed: 151, damage: 10 },
-      { boss: true, count: 1, sorBoss: 'gunner' },     // Gunner — boss 2
+      { boss: true, sorBoss: 'jack+zamza' },           // Jack + Zamza — one from each side
     ],
   },
   {

@@ -268,6 +268,29 @@ export default class UIScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-G', () => godBtn.emit('pointerdown'))
     this._godBtn = godBtn
 
+    // ── DEV: LEVEL NAV BUTTONS (remove before ship) ──
+    const btnStyle = { fontSize: '11px', fontFamily: 'monospace', color: '#555555', backgroundColor: '#11110fee', padding: { x: 6, y: 3 } }
+
+    const prevBtn = this.add.text(88, height - 14, '◀ LVL', btnStyle)
+      .setOrigin(0, 1).setDepth(100).setInteractive()
+    prevBtn.on('pointerdown', () => {
+      const game  = this.scene.get('Game')
+      const cur   = game?.levelData?.id || 1
+      const prev  = Math.max(1, cur - 1)
+      this.scene.stop('UI')
+      game.scene.restart({ level: prev, score: 0, lives: 3 })
+    })
+
+    const nextBtn = this.add.text(138, height - 14, 'LVL ▶', btnStyle)
+      .setOrigin(0, 1).setDepth(100).setInteractive()
+    nextBtn.on('pointerdown', () => {
+      const game  = this.scene.get('Game')
+      const cur   = game?.levelData?.id || 1
+      const next  = Math.min(12, cur + 1)
+      this.scene.stop('UI')
+      game.scene.restart({ level: next, score: 0, lives: 3 })
+    })
+
     // ── EVENTS FROM GAME ──
     game.events.on('score-update', (score) => {
       this.scoreText.setText('SCORE ' + score)

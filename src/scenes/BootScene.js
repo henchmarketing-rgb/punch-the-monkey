@@ -25,7 +25,7 @@ export default class BootScene extends Phaser.Scene {
     // === SOR ENEMY + BOSSES (L9 — Streets of Rage homage) ===
     this.load.spritesheet('sor-enemy',       'assets/sprites/sor-enemy.png',       { frameWidth: 76,  frameHeight: 88  })
     this.load.spritesheet('sor-boss-zamza',  'assets/sprites/sor-boss-zamza.png',  { frameWidth: 76,  frameHeight: 82  })
-    this.load.spritesheet('sor-boss-gunner', 'assets/sprites/sor-boss-gunner.png', { frameWidth: 104, frameHeight: 104 })
+    this.load.spritesheet('sor-boss-jack', 'assets/sprites/sor-boss-jack.png', { frameWidth: 104, frameHeight: 104 })
 
     // === EFFECTS ===
     this.load.spritesheet('hit-effects',    'assets/sprites/hit-effects.png',    { frameWidth: 144, frameHeight: 144 })
@@ -142,9 +142,9 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'zamza-hurt',   frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 50, end: 54 }), frameRate: 8,  repeat: 0  })
 
     // SoR boss — Gunner (104×104, 4c×8r = 32 frames)
-    anims.create({ key: 'gunner-walk',   frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 0,  end: 3  }), frameRate: 7,  repeat: -1 })
-    anims.create({ key: 'gunner-attack', frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 12, end: 17 }), frameRate: 10, repeat: 0  })
-    anims.create({ key: 'gunner-hurt',   frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 20, end: 23 }), frameRate: 8,  repeat: 0  })
+    anims.create({ key: 'jack-walk',   frames: anims.generateFrameNumbers('sor-boss-jack', { start: 0,  end: 3  }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'jack-attack', frames: anims.generateFrameNumbers('sor-boss-jack', { start: 12, end: 17 }), frameRate: 10, repeat: 0  })
+    anims.create({ key: 'jack-hurt',   frames: anims.generateFrameNumbers('sor-boss-jack', { start: 20, end: 23 }), frameRate: 8,  repeat: 0  })
 
     anims.create({ key: 'hit-spark',      frames: anims.generateFrameNumbers('hit-effects',    { start: 0, end: 3 }), frameRate: 16, repeat: 0 })
     anims.create({ key: 'boss-shockwave', frames: anims.generateFrameNumbers('boss-shockwave', { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
