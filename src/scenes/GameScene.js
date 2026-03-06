@@ -92,30 +92,41 @@ export default class GameScene extends Phaser.Scene {
   _startLevelMusic() {
     this._stopAllMusic()
 
-    // City zone: city tracks only. All other zones: shuffle from non-city pool.
-    const CITY_POOL    = ['music-city1', 'music-city2']
-    // Boss tracks (music-boss, music-boss-final) are excluded — handled by _startBossMusic() only
-    const NON_CITY_KEYS = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-credits']
+    // City zone: city tracks only. All other zones: round-robin through non-city pool.
+    // Boss tracks (music-boss, music-boss-final) are excluded — _startBossMusic() only.
+    const CITY_POOL     = ['music-city1', 'music-city2']
+    const NON_CITY_POOL = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-credits']
 
     const isCity = this.levelData.zone === 'escape'
     const pool   = isCity
       ? CITY_POOL
-      : NON_CITY_KEYS.filter(k => this.cache.audio.exists(k))
+      : NON_CITY_POOL.filter(k => this.cache.audio.exists(k))
 
     if (!pool.length) return
 
-    const playFromPool = (exclude = null) => {
-      const choices = pool.filter(k => k !== exclude)
-      const key = choices[Math.floor(Math.random() * choices.length)]
-      if (!this.cache.audio.exists(key)) return
+    // Registry keys keep index alive across scene restarts
+    const idxKey = isCity ? 'musicIdx_city' : 'musicIdx_main'
+    if (this.game.registry.get(idxKey) == null) this.game.registry.set(idxKey, 0)
+
+    const playNext = () => {
+      let idx = this.game.registry.get(idxKey) % pool.length
+      const key = pool[idx]
+      this.game.registry.set(idxKey, idx + 1)
+
+      if (!this.cache.audio.exists(key)) {
+        // Track not cached yet — skip to next
+        this.game.registry.set(idxKey, idx + 1)
+        playNext()
+        return
+      }
 
       this.music = this.sound.add(key, { volume: 0 })
       this.music.play()
       this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
-      // When track ends, shuffle to next
+      // When track ends naturally, advance to next in cycle
       this.music.once('complete', () => {
         if (this.music) { try { this.music.destroy() } catch(e){} this.music = null }
-        playFromPool(key)
+        playNext()
       })
     }
 
@@ -123,10 +134,10 @@ export default class GameScene extends Phaser.Scene {
     const cityKey = this.levelData.musicKey
     if (isCity && cityKey && !this.cache.audio.exists(cityKey)) {
       this.load.audio(cityKey, `assets/audio/${cityKey}.mp3`)
-      this.load.once('complete', () => playFromPool())
+      this.load.once('complete', () => playNext())
       this.load.start()
     } else {
-      playFromPool()
+      playNext()
     }
   }
 
