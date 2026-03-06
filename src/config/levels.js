@@ -33,8 +33,8 @@ export const LEVELS = [
     ],
   },
   {
-    id: 3, zone: 'zoo', name: "The Keeper's Yard",
-    bg: 'bg-zoo3', musicKey: 'music-zoo',   // ⏳ pending
+    id: 3, zone: 'zoo', name: 'The Primate Enclosure',
+    bg: 'bg-zoo3', musicKey: 'music-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 112, damage: 10 },
       { count: 10, hp: 45, speed: 118, damage: 10 },
@@ -42,7 +42,7 @@ export const LEVELS = [
     ],
   },
   {
-    id: 4, zone: 'zoo', name: 'The Primate Enclosure',
+    id: 4, zone: 'zoo', name: 'The Great Escape',
     bg: 'bg-zoo4', musicKey: 'music-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 118, damage: 10 },
@@ -63,8 +63,8 @@ export const LEVELS = [
     ],
   },
   {
-    id: 6, zone: 'escape', name: 'Construction Site',
-    bg: 'bg-escape2', musicKey: 'music-city1',  // ⏳ pending
+    id: 6, zone: 'escape', name: 'Inner City',
+    bg: 'bg-escape3', musicKey: 'music-city1',
     waves: [
       { count: 8,  hp: 45, speed: 128, damage: 10 },
       { count: 12, hp: 45, speed: 132, damage: 10 },
@@ -74,7 +74,7 @@ export const LEVELS = [
   },
   {
     id: 7, zone: 'escape', name: 'Highway Underpass',
-    bg: 'bg-escape3', musicKey: 'music-city2',
+    bg: 'bg-street', musicKey: 'music-city2',
     waves: [
       { count: 8,  hp: 45, speed: 133, damage: 10 },
       { count: 14, hp: 45, speed: 137, damage: 10 },
@@ -84,7 +84,7 @@ export const LEVELS = [
   },
   {
     id: 8, zone: 'escape', name: 'Night Market',
-    bg: 'bg-street', musicKey: 'music-city2',
+    bg: 'bg-escape2', musicKey: 'music-city2',
     enemyType: 'sor',   // 🎮 The Classic Level — Streets of Rage homage
     waves: [
       { count: 10, hp: 45, speed: 142, damage: 10 },
@@ -98,7 +98,7 @@ export const LEVELS = [
 
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
-    id: 9, zone: 'wild', name: 'The Great Escape',
+    id: 9, zone: 'wild', name: 'The Forest',
     bg: 'bg-escape4', musicKey: 'music-forest1',  // ⏳ bg-escape4 pending
     waves: [
       { count: 8,  hp: 45, speed: 138, damage: 10 },

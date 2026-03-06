@@ -18,7 +18,7 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale
-    this.worldW = Math.floor(width * 1.30)
+    this.worldW = Math.floor(width * 2.20)
     const worldW = this.worldW
 
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
