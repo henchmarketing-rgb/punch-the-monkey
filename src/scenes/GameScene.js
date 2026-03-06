@@ -93,7 +93,8 @@ export default class GameScene extends Phaser.Scene {
 
     // City zone: city tracks only. All other zones: shuffle from non-city pool.
     const CITY_POOL    = ['music-city1', 'music-city2']
-    const NON_CITY_KEYS = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-boss-final','music-credits']
+    // Boss tracks (music-boss, music-boss-final) are excluded — handled by _startBossMusic() only
+    const NON_CITY_KEYS = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-credits']
 
     const isCity = this.levelData.zone === 'escape'
     const pool   = isCity
