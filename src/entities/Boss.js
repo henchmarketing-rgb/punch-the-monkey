@@ -124,10 +124,6 @@ export default class Boss extends Enemy {
     if (scene.bossMusic) { scene.bossMusic.destroy(); scene.bossMusic = null }
 
     scene.time.delayedCall(300, () => {
-      const fx = scene.add.sprite(this.x, this.y, 'boss-fx-fire', 0)
-      fx.setDepth(999).setScale(1.0)
-      fx.play('boss-fx-fire')
-      fx.once('animationcomplete', () => fx.destroy())
       scene.events.emit('boss-defeated')
       this.destroy()
     })
