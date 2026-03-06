@@ -18,19 +18,19 @@ export const LEVELS = [
     id: 1, zone: 'zoo', name: 'Monkey Mountain',
     bg: 'bg-zoo3',
     waves: [
-      { count: 3,  hp: 45, speed: 95,  damage: 10 },
-      { count: 6,  hp: 45, speed: 100, damage: 10 },
-      { count: 9,  hp: 45, speed: 105, damage: 10 },
+      { count: 3,  hp: 55, speed: 95,  damage: 10 },
+      { count: 6,  hp: 55, speed: 100, damage: 10 },
+      { count: 9,  hp: 55, speed: 105, damage: 10 },
     ],
   },
   {
     id: 2, zone: 'zoo', name: 'The Reptile House',
     bg: 'bg-zoo2', walkTopRatio: 0.62,
     waves: [
-      { count: 3,  hp: 45, speed: 105, damage: 10 },
-      { count: 6,  hp: 45, speed: 110, damage: 10 },
-      { count: 10, hp: 45, speed: 115, damage: 10 },
-      { count: 14, hp: 45, speed: 118, damage: 10 },
+      { count: 3,  hp: 55, speed: 105, damage: 10 },
+      { count: 6,  hp: 55, speed: 110, damage: 10 },
+      { count: 10, hp: 55, speed: 115, damage: 10 },
+      { count: 14, hp: 55, speed: 118, damage: 10 },
       { boss: true, count: 1 },
     ],
   },
@@ -38,17 +38,17 @@ export const LEVELS = [
     id: 3, zone: 'zoo', name: 'The Primate Enclosure',
     bg: 'bg-zoo4',
     waves: [
-      { count: 6,  hp: 45, speed: 112, damage: 10 },
-      { count: 10, hp: 45, speed: 118, damage: 10 },
-      { count: 14, hp: 45, speed: 122, damage: 10 },
+      { count: 6,  hp: 55, speed: 112, damage: 10 },
+      { count: 10, hp: 55, speed: 118, damage: 10 },
+      { count: 14, hp: 55, speed: 122, damage: 10 },
     ],
   },
   {
     id: 4, zone: 'zoo', name: 'The Great Escape',
     bg: 'bg-zoo',
     waves: [
-      { count: 6,  hp: 45, speed: 118, damage: 10 },
-      { count: 12, hp: 45, speed: 123, damage: 10 },
+      { count: 6,  hp: 55, speed: 118, damage: 10 },
+      { count: 12, hp: 55, speed: 123, damage: 10 },
       { boss: true, count: 1, sorBoss: 'zookeeper' },
     ],
   },
@@ -58,19 +58,19 @@ export const LEVELS = [
     id: 5, zone: 'escape', name: 'Beyond the Fence',
     bg: 'bg-escape', musicKey: 'music-city1',
     waves: [
-      { count: 6,  hp: 45, speed: 122, damage: 10 },
-      { count: 10, hp: 45, speed: 126, damage: 10 },
-      { count: 14, hp: 45, speed: 130, damage: 10 },
-      { count: 18, hp: 45, speed: 132, damage: 10 },
+      { count: 6,  hp: 55, speed: 122, damage: 10 },
+      { count: 10, hp: 55, speed: 126, damage: 10 },
+      { count: 14, hp: 55, speed: 130, damage: 10 },
+      { count: 18, hp: 55, speed: 132, damage: 10 },
     ],
   },
   {
     id: 6, zone: 'escape', name: 'Inner City',
     bg: 'bg-escape3', musicKey: 'music-city1',
     waves: [
-      { count: 8,  hp: 45, speed: 128, damage: 10 },
-      { count: 12, hp: 45, speed: 132, damage: 10 },
-      { count: 16, hp: 45, speed: 135, damage: 10 },
+      { count: 8,  hp: 55, speed: 128, damage: 10 },
+      { count: 12, hp: 55, speed: 132, damage: 10 },
+      { count: 16, hp: 55, speed: 135, damage: 10 },
       { boss: true, count: 1, easter: true },   // 🦍 DK easter egg
     ],
   },
@@ -78,10 +78,10 @@ export const LEVELS = [
     id: 7, zone: 'escape', name: 'Highway Underpass',
     bg: 'bg-street', musicKey: 'music-city2',
     waves: [
-      { count: 8,  hp: 45, speed: 133, damage: 10 },
-      { count: 14, hp: 45, speed: 137, damage: 10 },
-      { count: 18, hp: 45, speed: 140, damage: 10 },
-      { count: 20, hp: 45, speed: 142, damage: 10 },
+      { count: 8,  hp: 55, speed: 133, damage: 10 },
+      { count: 14, hp: 55, speed: 137, damage: 10 },
+      { count: 18, hp: 55, speed: 140, damage: 10 },
+      { count: 20, hp: 55, speed: 142, damage: 10 },
     ],
   },
   {
@@ -89,11 +89,11 @@ export const LEVELS = [
     bg: 'bg-escape2', musicKey: 'music-city2',
     enemyType: 'sor',   // 🎮 The Classic Level — Streets of Rage homage
     waves: [
-      { count: 10, hp: 45, speed: 142, damage: 10 },
-      { count: 16, hp: 45, speed: 146, damage: 10 },
+      { count: 10, hp: 55, speed: 142, damage: 10 },
+      { count: 16, hp: 55, speed: 146, damage: 10 },
       { boss: true, count: 1, sorBoss: 'zamza' },      // Zamza
-      { count: 20, hp: 45, speed: 149, damage: 10 },
-      { count: 22, hp: 45, speed: 151, damage: 10 },
+      { count: 20, hp: 55, speed: 149, damage: 10 },
+      { count: 22, hp: 55, speed: 151, damage: 10 },
       { boss: true, sorBoss: 'jack+zamza' },           // Jack + Zamza from each side
     ],
   },
@@ -103,8 +103,8 @@ export const LEVELS = [
     id: 9, zone: 'wild', name: 'The Forest',
     bg: 'bg-forest2', 
     waves: [
-      { count: 8,  hp: 45, speed: 138, damage: 10 },
-      { count: 14, hp: 45, speed: 142, damage: 10 },
+      { count: 8,  hp: 55, speed: 138, damage: 10 },
+      { count: 14, hp: 55, speed: 142, damage: 10 },
       { boss: true, count: 2, sorBoss: 'animalcontrol' },
     ],
   },
@@ -112,29 +112,29 @@ export const LEVELS = [
     id: 10, zone: 'wild', name: 'The Deep Woods',
     bg: 'bg-forest4', 
     waves: [
-      { count: 10, hp: 45, speed: 146, damage: 10 },
-      { count: 16, hp: 45, speed: 150, damage: 10 },
-      { count: 20, hp: 45, speed: 153, damage: 10 },
-      { count: 24, hp: 45, speed: 155, damage: 10 },
+      { count: 10, hp: 55, speed: 146, damage: 10 },
+      { count: 16, hp: 55, speed: 150, damage: 10 },
+      { count: 20, hp: 55, speed: 153, damage: 10 },
+      { count: 24, hp: 55, speed: 155, damage: 10 },
     ],
   },
   {
     id: 11, zone: 'wild', name: 'Into the Dark',
     bg: 'bg-forest', 
     waves: [
-      { count: 10, hp: 45, speed: 150, damage: 10 },
-      { count: 16, hp: 45, speed: 154, damage: 10 },
+      { count: 10, hp: 55, speed: 150, damage: 10 },
+      { count: 16, hp: 55, speed: 154, damage: 10 },
       { boss: true, count: 1 },                    // mid-level surprise
-      { count: 20, hp: 45, speed: 157, damage: 10 },
-      { count: 24, hp: 45, speed: 160, damage: 10 },
+      { count: 20, hp: 55, speed: 157, damage: 10 },
+      { count: 24, hp: 55, speed: 160, damage: 10 },
     ],
   },
   {
     id: 12, zone: 'wild', name: 'HOME',
     bg: 'bg-escape4', 
     waves: [
-      { count: 10, hp: 45, speed: 154, damage: 10 },
-      { count: 16, hp: 45, speed: 158, damage: 10 },
+      { count: 10, hp: 55, speed: 154, damage: 10 },
+      { count: 16, hp: 55, speed: 158, damage: 10 },
       { boss: true, count: 4 },                    // 4 gorillas
       { boss: true, count: 1, final: true },        // the last one after cinematic
     ],
