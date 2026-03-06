@@ -15,7 +15,13 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.type     = config.type   || 'macaque'
     this.walkAnim   = config.walkAnim   || 'macaque-walk'
     this.attackAnim = config.attackAnim || 'macaque-attack'
-    this.hurtAnim   = 'macaque-hurt'
+    this.hurtAnim   = config.hurtAnim   || 'macaque-hurt'
+
+    // SoR hit mechanic: 2 hits → knockdown, 2 floor hits → dead
+    this._sorMode        = config.sorMode || false
+    this._sorStandingHits = 0   // counts up to 2 → knockdown
+    this._sorFloorHits    = 0   // counts up to 2 → dead
+    this._sorDown         = false
 
     this.aiState = 'chase'
     this.target  = null
@@ -84,31 +90,74 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
 
   takeHit(damage) {
     if (this.aiState === 'ko') return
-    if (this.hurtTimer > 0) return   // i-frames: can't be hit again during stagger
+    if (this.hurtTimer > 0) return
+
+    // ── SoR hit mechanic ────────────────────────────────────────────────────
+    if (this._sorMode) {
+      this.hurtTimer = 300
+      if (this.scene?.cache.audio.exists('sfx-punch')) {
+        this.scene.sound.play('sfx-punch', { volume: 0.3, detune: Phaser.Math.Between(-200, 200) })
+      }
+
+      if (!this._sorDown) {
+        // Standing phase
+        this._sorStandingHits++
+        this.setTint(0xff6666)
+        this.scene.time.delayedCall(120, () => this.clearTint())
+
+        if (this._sorStandingHits >= 2) {
+          // Knockdown
+          this._sorDown = true
+          this.aiState  = 'ko'
+          this.body.setVelocity(0, 0)
+          if (this.anims.exists('sor-knockdown')) {
+            this.play('sor-knockdown')
+            this.once('animationcomplete', () => {
+              if (this.active && this.anims.exists('sor-down')) this.play('sor-down')
+            })
+          }
+        } else {
+          this.aiState = 'hurt'
+          if (this.anims.exists('sor-hurt')) this.play('sor-hurt')
+        }
+      } else {
+        // Floor phase
+        this._sorFloorHits++
+        this.setTint(0xff4444)
+        this.scene.time.delayedCall(120, () => this.clearTint())
+
+        if (this._sorFloorHits >= 2) {
+          this._die()
+        }
+      }
+      return
+    }
+    // ── Standard hit mechanic ────────────────────────────────────────────────
     this.hp -= damage
     this.hurtTimer = 350
 
     if (this.hp <= 0) {
-      this.hp = 0
-      this.aiState = 'ko'
-      this.body.setVelocity(0, 0)
-      this.setTint(0xffffff)
-      // Only grunts play death SFX — boss has its own death sequence
-      if (this.type !== 'boss' && this.scene.cache.audio.exists('sfx-enemy-death')) {
-        this.scene.sound.play('sfx-enemy-death', { volume: 0.7 })
-      }
-      this.scene.time.delayedCall(400, () => {
-        if (this.scene) this.scene.events.emit('enemy-defeated', this)
-        this.destroy()
-      })
+      this._die()
     } else {
       this.aiState = 'hurt'
       if (this.hurtAnim && this.anims.exists(this.hurtAnim)) this.play(this.hurtAnim)
-      // Hit-impact thud — reuse punch SFX at low volume as enemy hurt confirmation
       if (this.type !== 'boss' && this.scene.cache.audio.exists('sfx-punch')) {
         this.scene.sound.play('sfx-punch', { volume: 0.3, detune: Phaser.Math.Between(-200, 200) })
       }
       if (this.scene) this.scene.events.emit('enemy-hurt', this)
     }
+  }
+
+  _die() {
+    this.aiState = 'ko'
+    this.body.setVelocity(0, 0)
+    this.setTint(0xffffff)
+    if (this.type !== 'boss' && this.scene?.cache.audio.exists('sfx-enemy-death')) {
+      this.scene.sound.play('sfx-enemy-death', { volume: 0.7 })
+    }
+    this.scene.time.delayedCall(380, () => {
+      if (this.scene) this.scene.events.emit('enemy-defeated', this)
+      this.destroy()
+    })
   }
 }

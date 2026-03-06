@@ -114,10 +114,11 @@ export default class GameScene extends Phaser.Scene {
 
         const isSoR = this.levelData.enemyType === 'sor'
         const e = new Enemy(this, spawnX, y, {
-          texture:    isSoR ? 'sor-enemy'      : 'macaque-walk',
-          walkAnim:   isSoR ? 'sor-walk'       : 'macaque-walk',
-          attackAnim: isSoR ? 'sor-attack'     : 'macaque-attack',
-          hurtAnim:   isSoR ? 'sor-hurt'       : 'macaque-hurt',
+          texture:    isSoR ? 'sor-enemy'   : 'macaque-walk',
+          walkAnim:   isSoR ? 'sor-walk'    : 'macaque-walk',
+          attackAnim: isSoR ? 'sor-attack'  : 'macaque-attack',
+          hurtAnim:   isSoR ? 'sor-hurt'    : 'macaque-hurt',
+          sorMode:    isSoR,
           hp:     waveCfg.hp,
           speed:  waveCfg.speed,
           damage: waveCfg.damage,
