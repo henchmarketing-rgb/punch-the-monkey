@@ -82,6 +82,23 @@ export default class Boss extends Enemy {
     const scene = this.scene
     if (!scene) return
 
+    // Freeze physics — let the death animation take over
+    this.body.setVelocity(0, 0)
+    this.body.setEnable(false)
+
+    // Play death/fall animation first, then trigger the rest of the sequence
+    if (scene.anims.exists('gorilla-death')) {
+      this.play('gorilla-death', true)
+      this.once('animationcomplete-gorilla-death', () => this._deathFinale())
+    } else {
+      this._deathFinale()
+    }
+  }
+
+  _deathFinale() {
+    const scene = this.scene
+    if (!scene) return
+
     scene.cameras.main.shake(800, 0.02)
     scene.time.timeScale = 0.25
     // Boss death roar

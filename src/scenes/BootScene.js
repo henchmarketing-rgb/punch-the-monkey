@@ -16,6 +16,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('gorilla-slam',  'assets/sprites/gorilla-slam.png',   { frameWidth: 393, frameHeight: 390 })
     this.load.spritesheet('gorilla-attack','assets/sprites/gorilla-attack.png', { frameWidth: 390, frameHeight: 360 })
     this.load.spritesheet('gorilla-chest', 'assets/sprites/gorilla-chest.png',  { frameWidth: 324, frameHeight: 312 })
+    this.load.spritesheet('gorilla-death', 'assets/sprites/gorilla-death.png',  { frameWidth: 512, frameHeight: 512 })
 
     // === MACAQUE GRUNT ===
     this.load.spritesheet('macaque-walk',   'assets/sprites/macaque-walk.png',   { frameWidth: 270, frameHeight: 300 })
@@ -149,6 +150,7 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'gorilla-slam',   frames: anims.generateFrameNumbers('gorilla-slam',   { start: 0, end: 2 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'gorilla-attack', frames: anims.generateFrameNumbers('gorilla-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'gorilla-chest',  frames: anims.generateFrameNumbers('gorilla-chest',  { start: 0, end: 2 }), frameRate: 8, repeat: -1 })
+    anims.create({ key: 'gorilla-death',  frames: anims.generateFrameNumbers('gorilla-death',  { start: 0, end: 5 }), frameRate: 7, repeat: 0  })
 
     anims.create({ key: 'macaque-walk',   frames: anims.generateFrameNumbers('macaque-walk',   { start: 0, end: 3 }), frameRate: 7, repeat: -1 })
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
