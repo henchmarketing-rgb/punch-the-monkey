@@ -43,9 +43,10 @@ export default class BootScene extends Phaser.Scene {
     // Boot loads: Zone 1 music + SFX only (~15MB).
     // Zone 2 music (city) loaded in LoreScene act 1 (after L4, during story text).
     // Zone 3 music (forest) loaded in LoreScene act 2 (after L8, during story text).
-    this.load.audio('music-title', 'assets/audio/music-title.mp3')
-    this.load.audio('music-zoo',   'assets/audio/music-level1.mp3')  // temp: music-zoo removed per Jazzy
-    this.load.audio('music-boss',  'assets/audio/music-boss.mp3')
+    this.load.audio('music-title',  'assets/audio/music-title.mp3')
+    this.load.audio('music-level1', 'assets/audio/music-level1.mp3')
+    this.load.audio('music-level2', 'assets/audio/music-level2.mp3')
+    this.load.audio('music-boss',   'assets/audio/music-boss.mp3')
     // SFX
     this.load.audio('sfx-punch',          'assets/audio/sfx-punch.wav')
     this.load.audio('sfx-kick',           'assets/audio/sfx-kick.mp3')

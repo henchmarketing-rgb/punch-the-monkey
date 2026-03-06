@@ -35,8 +35,10 @@ export default class GameScene extends Phaser.Scene {
       .setDepth(0)
       .setDepth(0)
 
-    this.walkTop    = Math.floor(height * 0.42)
-    this.walkBottom = Math.floor(height * 0.93)
+    const topRatio  = this.levelData.walkTopRatio    ?? 0.42
+    const botRatio  = this.levelData.walkBottomRatio ?? 0.93
+    this.walkTop    = Math.floor(height * topRatio)
+    this.walkBottom = Math.floor(height * botRatio)
     const walkH = this.walkBottom - this.walkTop
 
     // X bounds intentionally large — player constrained by camera, not physics wall
@@ -88,23 +90,41 @@ export default class GameScene extends Phaser.Scene {
 
   _startLevelMusic() {
     this._stopAllMusic()
-    const key = this.levelData.musicKey
-    if (!key) return
 
-    const play = () => {
+    // City zone: city tracks only. All other zones: shuffle from non-city pool.
+    const CITY_POOL    = ['music-city1', 'music-city2']
+    const NON_CITY_KEYS = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-boss-final','music-credits']
+
+    const isCity = this.levelData.zone === 'escape'
+    const pool   = isCity
+      ? CITY_POOL
+      : NON_CITY_KEYS.filter(k => this.cache.audio.exists(k))
+
+    if (!pool.length) return
+
+    const playFromPool = (exclude = null) => {
+      const choices = pool.filter(k => k !== exclude)
+      const key = choices[Math.floor(Math.random() * choices.length)]
       if (!this.cache.audio.exists(key)) return
-      this.music = this.sound.add(key, { loop: true, volume: 0 })
+
+      this.music = this.sound.add(key, { volume: 0 })
       this.music.play()
       this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
+      // When track ends, shuffle to next
+      this.music.once('complete', () => {
+        if (this.music) { try { this.music.destroy() } catch(e){} this.music = null }
+        playFromPool(key)
+      })
     }
 
-    if (this.cache.audio.exists(key)) {
-      play()
-    } else {
-      // Not cached yet (e.g. level-nav jump skipping lore) — load on demand
-      this.load.audio(key, `assets/audio/${key}.mp3`)
-      this.load.once('complete', () => play())
+    // If city track not cached yet (level-nav jump) — load on demand then start
+    const cityKey = this.levelData.musicKey
+    if (isCity && cityKey && !this.cache.audio.exists(cityKey)) {
+      this.load.audio(cityKey, `assets/audio/${cityKey}.mp3`)
+      this.load.once('complete', () => playFromPool())
       this.load.start()
+    } else {
+      playFromPool()
     }
   }
 

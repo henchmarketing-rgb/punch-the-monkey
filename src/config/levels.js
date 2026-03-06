@@ -16,7 +16,7 @@ export const LEVELS = [
   // ─── ZONE 1 — ZOO ────────────────────────────────────────────────────────
   {
     id: 1, zone: 'zoo', name: 'Monkey Mountain',
-    bg: 'bg-zoo3', musicKey: 'music-zoo',
+    bg: 'bg-zoo3',
     waves: [
       { count: 3,  hp: 45, speed: 95,  damage: 10 },
       { count: 6,  hp: 45, speed: 100, damage: 10 },
@@ -25,7 +25,7 @@ export const LEVELS = [
   },
   {
     id: 2, zone: 'zoo', name: 'The Reptile House',
-    bg: 'bg-zoo2', musicKey: 'music-zoo',
+    bg: 'bg-zoo2', walkTopRatio: 0.62,
     waves: [
       { count: 4,  hp: 45, speed: 105, damage: 10 },
       { count: 8,  hp: 45, speed: 110, damage: 10 },
@@ -35,7 +35,7 @@ export const LEVELS = [
   },
   {
     id: 3, zone: 'zoo', name: 'The Primate Enclosure',
-    bg: 'bg-zoo4', musicKey: 'music-zoo',
+    bg: 'bg-zoo4',
     waves: [
       { count: 6,  hp: 45, speed: 112, damage: 10 },
       { count: 10, hp: 45, speed: 118, damage: 10 },
@@ -44,7 +44,7 @@ export const LEVELS = [
   },
   {
     id: 4, zone: 'zoo', name: 'The Great Escape',
-    bg: 'bg-zoo', musicKey: 'music-zoo',
+    bg: 'bg-zoo',
     waves: [
       { count: 6,  hp: 45, speed: 118, damage: 10 },
       { count: 12, hp: 45, speed: 123, damage: 10 },
@@ -100,7 +100,7 @@ export const LEVELS = [
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
     id: 9, zone: 'wild', name: 'The Forest',
-    bg: 'bg-forest2', musicKey: 'music-forest1',  // ⏳ bg-escape4 pending
+    bg: 'bg-forest2', 
     waves: [
       { count: 8,  hp: 45, speed: 138, damage: 10 },
       { count: 14, hp: 45, speed: 142, damage: 10 },
@@ -109,7 +109,7 @@ export const LEVELS = [
   },
   {
     id: 10, zone: 'wild', name: 'The Deep Woods',
-    bg: 'bg-forest4', musicKey: 'music-forest1',
+    bg: 'bg-forest4', 
     waves: [
       { count: 10, hp: 45, speed: 146, damage: 10 },
       { count: 16, hp: 45, speed: 150, damage: 10 },
@@ -119,7 +119,7 @@ export const LEVELS = [
   },
   {
     id: 11, zone: 'wild', name: 'Into the Dark',
-    bg: 'bg-forest', musicKey: 'music-forest2',
+    bg: 'bg-forest', 
     waves: [
       { count: 10, hp: 45, speed: 150, damage: 10 },
       { count: 16, hp: 45, speed: 154, damage: 10 },
@@ -130,7 +130,7 @@ export const LEVELS = [
   },
   {
     id: 12, zone: 'wild', name: 'HOME',
-    bg: 'bg-escape4', musicKey: 'music-boss-final',
+    bg: 'bg-escape4', 
     waves: [
       { count: 10, hp: 45, speed: 154, damage: 10 },
       { count: 16, hp: 45, speed: 158, damage: 10 },
