@@ -14,6 +14,7 @@ export default class GameScene extends Phaser.Scene {
     this.wave            = 0      // advanceWave() increments before reading
     this.activeBossCount = 0      // tracks simultaneous bosses alive
     this.awaitingAdvance = false
+    this._bossSpawning   = false  // locked once boss wave is reached — prevents wave counter corruption
   }
 
   create() {
@@ -253,6 +254,7 @@ export default class GameScene extends Phaser.Scene {
   // ── WAVE RUNNER ───────────────────────────────────────────────────────────
 
   advanceWave() {
+    if (this._bossSpawning) return  // boss wave locked — ignore stray enemy-defeated calls
     this.wave++
     const entry = this.levelData.waves[this.wave - 1]
 
@@ -265,13 +267,24 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (entry.boss) {
+      // Lock immediately — prevents any further advanceWave() calls corrupting the counter
+      this._bossSpawning = true
       this.time.delayedCall(700, () => {
-        // Safety check — don't spawn boss if enemies are somehow still alive
+        // Belt-and-suspenders: wait for enemies to fully clear before boss enters
         const stillAlive = this.enemies.filter(e => e.active)
         if (stillAlive.length > 0) {
-          this.wave--  // revert so onEnemyDefeated can retry
+          // Not ready yet — retry every 300ms until field is clear
+          const retry = () => {
+            const alive = this.enemies.filter(e => e.active)
+            if (alive.length === 0) spawnBossNow()
+            else this.time.delayedCall(300, retry)
+          }
+          retry()
           return
         }
+        spawnBossNow()
+      })
+      const spawnBossNow = () => {
         if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
         const count       = entry.count || 1
         const isFinal     = entry.final   || false
@@ -282,7 +295,7 @@ export default class GameScene extends Phaser.Scene {
         this.showBossIntro(boss, () => {
           if (this.player) this.player._frozen = false
         }, { count, isEaster, isFinal, sorBoss })
-      })
+      }
     } else {
       this.time.delayedCall(1400, () => this.spawnWave(entry))
     }
@@ -569,6 +582,7 @@ export default class GameScene extends Phaser.Scene {
     this.activeBossCount = Math.max(0, this.activeBossCount - 1)
     if (this.activeBossCount > 0) return   // wait for all bosses to die
 
+    this._bossSpawning = false            // unlock for any subsequent boss waves
     this._bananaSpawnedThisWave = false   // reset for next boss encounter
 
     const nextEntry = this.levelData.waves[this.wave]
