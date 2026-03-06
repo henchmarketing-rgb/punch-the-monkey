@@ -541,7 +541,7 @@ export default class UIScene extends Phaser.Scene {
     })
 
     // Hint
-    all.push(this.add.text(cx, cy + cardH / 2 - 16, 'tap anywhere or press any key to dismiss', {
+    all.push(this.add.text(cx, cy + cardH / 2 - 16, '', {
       fontSize: '8px', fontFamily: 'monospace', color: '#4a7a18',
     }).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH + 2))
 
@@ -556,12 +556,8 @@ export default class UIScene extends Phaser.Scene {
       })
     }
 
-    this.time.delayedCall(4000, dismiss)
-    // Delay input listeners — avoids the tap that launched the game instantly dismissing the popup
-    this.time.delayedCall(900, () => {
-      this.input.once('pointerdown', dismiss)
-      this.input.keyboard.once('keydown', dismiss)
-    })
+    // Auto-fade after 2 seconds — no tap/key needed
+    this.time.delayedCall(2000, dismiss)
   }
 
     togglePause() {
