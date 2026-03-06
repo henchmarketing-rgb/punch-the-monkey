@@ -93,7 +93,9 @@ export default class UIScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(103)
 
     // ── LEVEL NAME (top centre, jungle green) ──
-    this.add.text(width / 2, 16, (this.levelData?.name || '').toUpperCase(), {
+    const lvlNum  = this.levelData?.id   || ''
+    const lvlName = (this.levelData?.name || '').toUpperCase()
+    this.add.text(width / 2, 16, lvlNum ? `LVL ${lvlNum}  —  ${lvlName}` : lvlName, {
       fontSize: '14px', fontFamily: 'monospace', color: '#8acc44', stroke: '#0a0804', strokeThickness: 2
     }).setOrigin(0.5).setDepth(100)
 
