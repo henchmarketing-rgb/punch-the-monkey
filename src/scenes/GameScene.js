@@ -22,7 +22,11 @@ export default class GameScene extends Phaser.Scene {
     const worldW = this.worldW
 
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
-    this.bg = this.add.image(0, 0, bgKey).setOrigin(0, 0).setScrollFactor(1)
+    const { width, height } = this.scale
+    this.bg = this.add.image(width / 2, height / 2, bgKey)
+      .setDisplaySize(width, height)
+      .setScrollFactor(0)   // fixed to camera — never scrolls off screen
+      .setDepth(0)
 
     this.walkTop    = Math.floor(height * 0.42)
     this.walkBottom = Math.floor(height * 0.93)
@@ -75,35 +79,10 @@ export default class GameScene extends Phaser.Scene {
   _startLevelMusic() {
     this._stopAllMusic()
     const key = this.levelData.musicKey
-    if (!key) return
-
-    const play = () => {
-      if (!this.cache.audio.exists(key)) return
-      this.music = this.sound.add(key, { loop: true, volume: 0 })
-      this.music.play()
-      this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
-    }
-
-    if (this.cache.audio.exists(key)) {
-      play()
-    } else {
-      // Lazy-load zone music on first entry to that zone
-      const lazyKeys = {
-        'music-city1':      ['assets/audio/music-city1.mp3',      'music-city1'],
-        'music-city2':      ['assets/audio/music-city2.mp3',      'music-city2'],
-        'music-forest1':    ['assets/audio/music-forest1.mp3',    'music-forest1'],
-        'music-forest2':    ['assets/audio/music-forest2.mp3',    'music-forest2'],
-        'music-boss-final': ['assets/audio/music-boss-final.mp3', 'music-boss-final'],
-        'music-credits':    ['assets/audio/music-credits.mp3',    'music-credits'],
-        'music-level1':     ['assets/audio/music-level1.mp3',     'music-level1'],
-        'music-level2':     ['assets/audio/music-level2.mp3',     'music-level2'],
-      }
-      if (lazyKeys[key]) {
-        this.load.audio(key, lazyKeys[key][0])
-        this.load.once('complete', play)
-        this.load.start()
-      }
-    }
+    if (!key || !this.cache.audio.exists(key)) return
+    this.music = this.sound.add(key, { loop: true, volume: 0 })
+    this.music.play()
+    this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
   }
 
   _startBossMusic() {

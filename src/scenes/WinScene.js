@@ -7,18 +7,10 @@ export default class WinScene extends Phaser.Scene {
     const { width, height } = this.scale
 
     // Credits music
-    const startCreditsMusic = () => {
-      if (!this.cache.audio.exists('music-credits')) return
+    if (this.cache.audio.exists('music-credits')) {
       this.creditsMusic = this.sound.add('music-credits', { loop: true, volume: 0 })
       this.creditsMusic.play()
       this.tweens.add({ targets: this.creditsMusic, volume: 0.55, duration: 1200 })
-    }
-    if (this.cache.audio.exists('music-credits')) {
-      startCreditsMusic()
-    } else {
-      this.load.audio('music-credits', 'assets/audio/music-credits.mp3')
-      this.load.once('complete', startCreditsMusic)
-      this.load.start()
     }
 
     // Forest background
