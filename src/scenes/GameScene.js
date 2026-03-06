@@ -18,7 +18,7 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale
-    this.worldW = Math.floor(width * 2.20)
+    this.worldW = Math.floor(width * 1.60)
     const worldW = this.worldW
 
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
@@ -628,10 +628,13 @@ export default class GameScene extends Phaser.Scene {
         this.applyDepthScale(e)
       }
     })
-    if (this.awaitingAdvance && this.player.x >= this.worldW - 140) {
-      this.awaitingAdvance = false
-      this.events.emit('advance-prompt', false)
-      this.nextLevel()
+    if (this.awaitingAdvance) {
+      const cam = this.cameras.main
+      if (this.player.x >= cam.scrollX + cam.width - 140) {
+        this.awaitingAdvance = false
+        this.events.emit('advance-prompt', false)
+        this.nextLevel()
+      }
     }
   }
 }
