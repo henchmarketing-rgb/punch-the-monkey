@@ -5,7 +5,9 @@ export default class TitleScene extends Phaser.Scene {
     const { width, height } = this.scale
 
     // ── BACKGROUND ──
-    if (this.textures.exists('title-bg')) {
+    if (this.textures.exists('bg-dusk')) {
+      this.add.image(width / 2, height / 2, 'bg-dusk').setDisplaySize(width, height)
+    } else if (this.textures.exists('title-bg')) {
       this.add.image(width / 2, height / 2, 'title-bg').setDisplaySize(width, height)
     } else {
       this.add.rectangle(0, 0, width, height, 0x07061a).setOrigin(0, 0)
