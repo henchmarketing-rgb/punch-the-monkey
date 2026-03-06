@@ -77,8 +77,8 @@ export default class Player extends Phaser.GameObjects.Sprite {
       return
     }
 
-    // Frozen during boss intros / cinematics — block all input and stop movement
-    if (this._frozen) {
+    // Dead or frozen — block all input and stop movement
+    if (this._frozen || this.state === 'ko') {
       this.body.setVelocity(0, 0)
       return
     }

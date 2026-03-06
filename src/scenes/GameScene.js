@@ -561,6 +561,7 @@ export default class GameScene extends Phaser.Scene {
 
   handleEnemyAttack({ enemy, damage }) {
     if (!this.player?.active) return
+    if (!enemy?.active || enemy.aiState === 'ko') return   // dead enemies can't land hits
     if (!this._inDepthRange(enemy.y, this.player.y)) return
     if (Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y) <= 144) {
       this.player.takeHit(damage)
