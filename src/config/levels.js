@@ -129,6 +129,7 @@ export const LEVELS = [
     waves: [
       { count: 8,  hp: 45, speed: 144, damage: 10 },
       { count: 12, hp: 45, speed: 147, damage: 10 },
+      { count: 16, hp: 45, speed: 149, damage: 10 },
       { boss: true, count: 2 },
     ],
   },
