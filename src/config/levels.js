@@ -83,27 +83,27 @@ export const LEVELS = [
     ],
   },
   {
-    id: 8, zone: 'escape', name: 'The Great Escape',
-    bg: 'bg-escape4', musicKey: 'music-city2',  // ⏳ pending
+    id: 8, zone: 'escape', name: 'Night Market',
+    bg: 'bg-street', musicKey: 'music-city2',
+    enemyType: 'sor',   // 🎮 The Classic Level — Streets of Rage homage
     waves: [
-      { count: 8,  hp: 45, speed: 138, damage: 10 },
-      { count: 14, hp: 45, speed: 142, damage: 10 },
-      { boss: true, count: 2, sorBoss: 'animalcontrol' },
+      { count: 10, hp: 45, speed: 142, damage: 10 },
+      { count: 16, hp: 45, speed: 146, damage: 10 },
+      { boss: true, count: 1, sorBoss: 'zamza' },      // Zamza
+      { count: 20, hp: 45, speed: 149, damage: 10 },
+      { count: 22, hp: 45, speed: 151, damage: 10 },
+      { boss: true, sorBoss: 'jack+zamza' },           // Jack + Zamza from each side
     ],
   },
 
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
-    id: 9, zone: 'wild', name: 'Night Market',
-    bg: 'bg-street', musicKey: 'music-forest1',
-    enemyType: 'sor',   // Streets of Rage homage — replace macaques with SoR grunts
+    id: 9, zone: 'wild', name: 'The Great Escape',
+    bg: 'bg-escape4', musicKey: 'music-forest1',  // ⏳ bg-escape4 pending
     waves: [
-      { count: 10, hp: 45, speed: 142, damage: 10 },
-      { count: 16, hp: 45, speed: 146, damage: 10 },
-      { boss: true, count: 1, sorBoss: 'zamza' },      // Zamza — boss 1
-      { count: 20, hp: 45, speed: 149, damage: 10 },
-      { count: 22, hp: 45, speed: 151, damage: 10 },
-      { boss: true, sorBoss: 'jack+zamza' },           // Jack + Zamza — one from each side
+      { count: 8,  hp: 45, speed: 138, damage: 10 },
+      { count: 14, hp: 45, speed: 142, damage: 10 },
+      { boss: true, count: 2, sorBoss: 'animalcontrol' },
     ],
   },
   {
