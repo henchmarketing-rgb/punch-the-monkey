@@ -427,9 +427,9 @@ export default class GameScene extends Phaser.Scene {
         return
       }
 
-      // After zone-end levels (4, 8, 12) → lore scene
+      // After zone-end levels 4 and 8 → lore scene (L12 goes straight to Win)
       const currentId = this.levelData.id
-      if (currentId === 4 || currentId === 8 || currentId === 12) {
+      if (currentId === 4 || currentId === 8) {
         this.scene.start('Lore', {
           afterLevel: currentId,
           nextLevel:  currentId + 1,
