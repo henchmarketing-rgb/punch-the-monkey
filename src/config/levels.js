@@ -95,7 +95,7 @@ export const LEVELS = [
   // ─── ZONE 3 — INTO THE WILD ───────────────────────────────────────────────
   {
     id: 9, zone: 'wild', name: 'Night Market',
-    bg: 'bg-street', musicKey: 'music-level1',
+    bg: 'bg-street', musicKey: 'music-forest1',
     waves: [
       { count: 10, hp: 45, speed: 142, damage: 10 },
       { count: 16, hp: 45, speed: 146, damage: 10 },
@@ -105,7 +105,7 @@ export const LEVELS = [
   },
   {
     id: 10, zone: 'wild', name: 'The Dockside',
-    bg: 'bg-street2', musicKey: 'music-level1',
+    bg: 'bg-street2', musicKey: 'music-forest1',
     waves: [
       { count: 10, hp: 45, speed: 146, damage: 10 },
       { count: 16, hp: 45, speed: 150, damage: 10 },
@@ -115,7 +115,7 @@ export const LEVELS = [
   },
   {
     id: 11, zone: 'wild', name: 'Into the Dark',
-    bg: 'bg-forest', musicKey: 'music-level2',
+    bg: 'bg-forest', musicKey: 'music-forest2',
     waves: [
       { count: 10, hp: 45, speed: 150, damage: 10 },
       { count: 16, hp: 45, speed: 154, damage: 10 },
@@ -126,7 +126,7 @@ export const LEVELS = [
   },
   {
     id: 12, zone: 'wild', name: 'HOME',
-    bg: 'bg-forest4', musicKey: 'music-level2',
+    bg: 'bg-forest4', musicKey: 'music-forest2',
     waves: [
       { count: 10, hp: 45, speed: 154, damage: 10 },
       { count: 16, hp: 45, speed: 158, damage: 10 },

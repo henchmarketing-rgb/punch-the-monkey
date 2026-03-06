@@ -31,8 +31,10 @@ export default class BootScene extends Phaser.Scene {
     // === AUDIO ===
     // Music
     this.load.audio('music-title',  'assets/audio/music-title.mp3')
-    this.load.audio('music-level1', 'assets/audio/music-level1.mp3')
-    this.load.audio('music-level2', 'assets/audio/music-level2.mp3')
+    this.load.audio('music-level1',  'assets/audio/music-level1.mp3')
+    this.load.audio('music-level2',  'assets/audio/music-level2.mp3')
+    this.load.audio('music-forest1', 'assets/audio/music-forest1.mp3')
+    this.load.audio('music-forest2', 'assets/audio/music-forest2.mp3')
     this.load.audio('music-boss',   'assets/audio/music-boss.mp3')
     // SFX
     this.load.audio('sfx-punch',          'assets/audio/sfx-punch.wav')
