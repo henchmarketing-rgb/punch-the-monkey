@@ -31,7 +31,8 @@ export default class GameScene extends Phaser.Scene {
     this.walkBottom = Math.floor(height * 0.93)
     const walkH = this.walkBottom - this.walkTop
 
-    this.physics.world.setBounds(0, this.walkTop, worldW, walkH)
+    // X bounds intentionally large — player constrained by camera, not physics wall
+    this.physics.world.setBounds(0, this.walkTop, worldW * 10, walkH)
     this.cameras.main.setBounds(0, 0, worldW, height)
 
     this.player = new Player(this, width * 0.15, height * 0.80)
@@ -137,7 +138,10 @@ export default class GameScene extends Phaser.Scene {
         const corner  = i % 4
         const fromLeft = corner === 0 || corner === 2
         const fromTop  = corner === 0 || corner === 1
-        const spawnX = fromLeft ? -80 : this.worldW + 80
+        const cam    = this.cameras.main
+        const spawnX = fromLeft
+          ? cam.scrollX - 80
+          : cam.scrollX + cam.width + 80
         const y      = fromTop
           ? Phaser.Math.Between(this.walkTop + 20,  this.walkTop  + 80)
           : Phaser.Math.Between(this.walkBottom - 80, this.walkBottom - 20)
