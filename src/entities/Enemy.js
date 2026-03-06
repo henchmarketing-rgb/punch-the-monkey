@@ -52,7 +52,10 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     if (!this.target) { this.body.setVelocity(0, 0); return }
 
     const dist = Phaser.Math.Distance.Between(this.x, this.y, this.target.x, this.target.y)
-    this.setFlipX(this.target.x < this.x)
+    // Flip based on own velocity direction — independent logic per character
+    if (Math.abs(this.body.velocity.x) > 5) {
+      this.setFlipX(this.body.velocity.x < 0)
+    }
 
     // Don't interrupt a mid-swing attack animation
     if (this.aiState === 'attack') return

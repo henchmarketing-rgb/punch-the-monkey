@@ -40,7 +40,9 @@ export default class GameScene extends Phaser.Scene {
 
     this.player = new Player(this, width * 0.15, height * 0.80)
     this.player.body.setCollideWorldBounds(true)
-    this.cameras.main.startFollow(this.player, true, 0.18, 0.12)
+    // Belt-scroller: camera only advances RIGHT — never scrolls back left
+    this.cameras.main.stopFollow()
+    this._camTargetX = 0
 
     this.enemies = []
     this.boss    = null
@@ -646,5 +648,14 @@ export default class GameScene extends Phaser.Scene {
         this.nextLevel()
       }
     }
+
+    // Right-only camera follow — camera advances as player moves right, never scrolls back
+    const cam  = this.cameras.main
+    const maxX = this.worldW - cam.width
+    const desiredX = this.player.x - cam.width / 2
+    if (desiredX > cam.scrollX) {
+      this._camTargetX = Math.min(desiredX, maxX)
+    }
+    cam.scrollX = Phaser.Math.Linear(cam.scrollX, this._camTargetX, 0.10)
   }
 }
