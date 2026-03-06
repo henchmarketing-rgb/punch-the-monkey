@@ -17,6 +17,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // Hard-kill any music still alive from the previous level before doing anything else
+    this.sound.getAll().forEach(s => {
+      if (s.key?.startsWith('music-')) { try { s.stop(); s.destroy() } catch(e) {} }
+    })
+
     const { width, height } = this.scale
     this.worldW = Math.floor(width * 1.30)
     const worldW = this.worldW
