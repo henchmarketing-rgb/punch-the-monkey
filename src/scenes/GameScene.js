@@ -21,7 +21,7 @@ export default class GameScene extends Phaser.Scene {
     this.worldW = Math.floor(width * 1.30)
     const worldW = this.worldW
 
-    const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo-fallback'
+    const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
     this.bg = this.add.image(0, 0, bgKey).setOrigin(0, 0).setScrollFactor(1)
 
     this.walkTop    = Math.floor(height * 0.42)
@@ -61,10 +61,21 @@ export default class GameScene extends Phaser.Scene {
 
   // ── MUSIC ─────────────────────────────────────────────────────────────────
 
+  _stopAllMusic() {
+    // Kill every currently playing music track — prevents doubling across level transitions
+    this.sound.getAll().forEach(s => {
+      if (s.key && s.key.startsWith('music-')) {
+        try { s.stop(); s.destroy() } catch (e) {}
+      }
+    })
+    this.music     = null
+    this.bossMusic = null
+  }
+
   _startLevelMusic() {
+    this._stopAllMusic()
     const key = this.levelData.musicKey
     if (!key || !this.cache.audio.exists(key)) return
-    this.sound.getAll(key).forEach(s => s.destroy())
     this.music = this.sound.add(key, { loop: true, volume: 0 })
     this.music.play()
     this.tweens.add({ targets: this.music, volume: 0.5, duration: 800 })
@@ -73,11 +84,14 @@ export default class GameScene extends Phaser.Scene {
   _startBossMusic() {
     if (!this.cache.audio.exists('music-boss')) return
     if (this.music) {
+      const fading = this.music
+      this.music = null
       this.tweens.add({
-        targets: this.music, volume: 0, duration: 600,
-        onComplete: () => { if (this.music) { this.music.destroy(); this.music = null } },
+        targets: fading, volume: 0, duration: 600,
+        onComplete: () => { try { fading.stop(); fading.destroy() } catch(e) {} },
       })
     }
+    if (!this.cache.audio.exists('music-boss')) return
     this.bossMusic = this.sound.add('music-boss', { loop: true, volume: 0 })
     this.bossMusic.play()
     this.tweens.add({ targets: this.bossMusic, volume: 0.55, duration: 800 })
@@ -565,8 +579,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   shutdown() {
-    if (this.music)     { this.music.destroy();     this.music     = null }
-    if (this.bossMusic) { this.bossMusic.destroy();  this.bossMusic = null }
+    this._stopAllMusic()
   }
 
   applyDepthScale(sprite) {

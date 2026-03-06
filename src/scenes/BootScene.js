@@ -65,8 +65,8 @@ export default class BootScene extends Phaser.Scene {
     // Zone 1 — Zoo
     this.load.image('bg-zoo',    'assets/backgrounds/bg-zoo.png')
     this.load.image('bg-zoo2',   'assets/backgrounds/bg-zoo2.png')
-    // bg-zoo3 pending
     this.load.image('bg-zoo4',   'assets/backgrounds/bg-zoo4.png')
+    this.load.image('bg-dusk',   'assets/backgrounds/bg-dusk.png')
 
     // Zone 2 — Escape
     this.load.image('bg-escape',  'assets/backgrounds/bg-escape.png')
