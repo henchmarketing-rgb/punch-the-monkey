@@ -54,7 +54,7 @@ export const LEVELS = [
   // ─── ZONE 2 — ESCAPE ─────────────────────────────────────────────────────
   {
     id: 5, zone: 'escape', name: 'Beyond the Fence',
-    bg: 'bg-escape', musicKey: 'music-level2',
+    bg: 'bg-escape', musicKey: 'music-city1',
     waves: [
       { count: 6,  hp: 45, speed: 122, damage: 10 },
       { count: 10, hp: 45, speed: 126, damage: 10 },
@@ -64,7 +64,7 @@ export const LEVELS = [
   },
   {
     id: 6, zone: 'escape', name: 'Construction Site',
-    bg: 'bg-escape2', musicKey: 'music-level2',  // ⏳ pending
+    bg: 'bg-escape2', musicKey: 'music-city1',  // ⏳ pending
     waves: [
       { count: 8,  hp: 45, speed: 128, damage: 10 },
       { count: 12, hp: 45, speed: 132, damage: 10 },
@@ -74,7 +74,7 @@ export const LEVELS = [
   },
   {
     id: 7, zone: 'escape', name: 'Highway Underpass',
-    bg: 'bg-escape3', musicKey: 'music-level2',
+    bg: 'bg-escape3', musicKey: 'music-city2',
     waves: [
       { count: 8,  hp: 45, speed: 133, damage: 10 },
       { count: 14, hp: 45, speed: 137, damage: 10 },
@@ -84,7 +84,7 @@ export const LEVELS = [
   },
   {
     id: 8, zone: 'escape', name: 'The Great Escape',
-    bg: 'bg-escape4', musicKey: 'music-level2',  // ⏳ pending
+    bg: 'bg-escape4', musicKey: 'music-city2',  // ⏳ pending
     waves: [
       { count: 8,  hp: 45, speed: 138, damage: 10 },
       { count: 14, hp: 45, speed: 142, damage: 10 },
