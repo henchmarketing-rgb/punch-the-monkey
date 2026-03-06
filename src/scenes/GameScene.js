@@ -18,13 +18,16 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale
-    this.worldW = Math.floor(width * 1.60)
+    this.worldW = Math.floor(width * 1.30)
     const worldW = this.worldW
 
+    // Backgrounds are 1872×810 — full world width. Place at world origin and let them scroll naturally.
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
-    this.bg = this.add.image(width / 2, height / 2, bgKey)
-      .setDisplaySize(width, height)
-      .setScrollFactor(0)   // fixed to camera — never scrolls off screen
+    this.bg = this.add.image(0, 0, bgKey)
+      .setOrigin(0, 0)
+      .setDisplaySize(this.worldW, height)
+      .setScrollFactor(1)
+      .setDepth(0)
       .setDepth(0)
 
     this.walkTop    = Math.floor(height * 0.42)
