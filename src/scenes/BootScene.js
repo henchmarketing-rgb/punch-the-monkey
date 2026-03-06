@@ -77,7 +77,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('bg-escape',  'assets/backgrounds/bg-escape.png')
     this.load.image('bg-escape2', 'assets/backgrounds/bg-escape2.png')
     this.load.image('bg-escape3', 'assets/backgrounds/bg-escape3.png')
-    // bg-escape4 pending (L9)
+    this.load.image('bg-escape4', 'assets/backgrounds/bg-escape4.png')
 
     // Zone 3 — Streets
     this.load.image('bg-street',  'assets/backgrounds/bg-street.png')
