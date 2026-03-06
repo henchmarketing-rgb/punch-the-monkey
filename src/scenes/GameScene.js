@@ -131,27 +131,45 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  spawnBoss(offsetX = 0, hpMultiplier = 1) {
+  spawnBoss(offsetX = 0, hpMultiplier = 1, sorBossType = null) {
     const cam    = this.cameras.main
     const spawnX = Math.min(cam.scrollX + cam.width + 80 + offsetX, this.worldW - 30)
     const spawnY = Phaser.Math.Between(this.walkTop + 60, this.walkBottom - 40)
-    const boss   = new Boss(this, spawnX, spawnY, { hpMultiplier })
+    let boss
+
+    if (sorBossType === 'zamza') {
+      boss = new Enemy(this, spawnX, spawnY, {
+        texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',
+        attackAnim: 'zamza-attack', hurtAnim: 'zamza-hurt',
+        hp: Math.round(675 * hpMultiplier), speed: 155, damage: 20,
+        type: 'boss', displayScale: 1.6,
+      })
+    } else if (sorBossType === 'gunner') {
+      boss = new Enemy(this, spawnX, spawnY, {
+        texture: 'sor-boss-gunner', walkAnim: 'gunner-walk',
+        attackAnim: 'gunner-attack', hurtAnim: 'gunner-hurt',
+        hp: Math.round(675 * hpMultiplier), speed: 140, damage: 20,
+        type: 'boss', displayScale: 1.6,
+      })
+    } else {
+      boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
+    }
+
     boss.setTarget(this.player)
     boss.body.setCollideWorldBounds(true)
     this.enemies.push(boss)
     return boss
   }
 
-  spawnMultipleBosses(count, hpMultiplier = 1) {
+  spawnMultipleBosses(count, hpMultiplier = 1, sorBossType = null) {
     this.activeBossCount = count
     const bosses = []
     for (let i = 0; i < count; i++) {
-      const offsetX = i * 220
-      const boss = this.spawnBoss(offsetX, hpMultiplier)
+      const boss = this.spawnBoss(i * 220, hpMultiplier, sorBossType)
       bosses.push(boss)
     }
     this.boss = bosses[0]
-    return bosses[0]   // return first for cinematic panning
+    return bosses[0]
   }
 
   // ── WAVE RUNNER ───────────────────────────────────────────────────────────
@@ -172,13 +190,14 @@ export default class GameScene extends Phaser.Scene {
       this.time.delayedCall(700, () => {
         if (this.player) { this.player._frozen = true; this.player.body.setVelocity(0, 0) }
         const count       = entry.count || 1
-        const isFinal     = entry.final || false
-        const isEaster    = entry.easter || false
-        const hpMult      = isFinal ? 1.5 : 1   // final boss gets extra HP on top of 3×
-        const boss        = this.spawnMultipleBosses(count, hpMult)
+        const isFinal     = entry.final   || false
+        const isEaster    = entry.easter  || false
+        const sorBoss     = entry.sorBoss || null
+        const hpMult      = isFinal ? 1.5 : 1
+        const boss        = this.spawnMultipleBosses(count, hpMult, sorBoss)
         this.showBossIntro(boss, () => {
           if (this.player) this.player._frozen = false
-        }, { count, isEaster, isFinal })
+        }, { count, isEaster, isFinal, sorBoss })
       })
     } else {
       this.time.delayedCall(1400, () => this.spawnWave(entry))
@@ -190,7 +209,7 @@ export default class GameScene extends Phaser.Scene {
   showBossIntro(boss, onComplete, opts = {}) {
     const { width, height } = this.scale
     const cam = this.cameras.main
-    const { count = 1, isEaster = false, isFinal = false } = opts
+    const { count = 1, isEaster = false, isFinal = false, sorBoss = null } = opts
 
     const PAN_TO   = 1400
     const ZOOM_IN  = 1400
@@ -231,6 +250,12 @@ export default class GameScene extends Phaser.Scene {
           } else if (isEaster) {
             title    = '?!?!?!'
             subtitle = '— THIS FEELS FAMILIAR —'
+          } else if (sorBoss === 'zamza') {
+            title    = 'ZAMZA'
+            subtitle = '— STREETS OF RAGE —'
+          } else if (sorBoss === 'gunner') {
+            title    = 'BOSS FIGHT'
+            subtitle = '— ARMED AND DANGEROUS —'
           } else if (count >= 2) {
             title    = 'BOSS FIGHT'
             subtitle = `— × ${count} ANGRY GORILLAS —`

@@ -22,8 +22,10 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('macaque-attack', 'assets/sprites/macaque-attack.png', { frameWidth: 390, frameHeight: 300 })
     this.load.spritesheet('macaque-hurt',   'assets/sprites/macaque-hurt.png',   { frameWidth: 270, frameHeight: 270 })
 
-    // === SOR ENEMY (L9 — Streets of Rage homage) ===
-    this.load.spritesheet('sor-enemy', 'assets/sprites/sor-enemy.png', { frameWidth: 76, frameHeight: 88 })
+    // === SOR ENEMY + BOSSES (L9 — Streets of Rage homage) ===
+    this.load.spritesheet('sor-enemy',       'assets/sprites/sor-enemy.png',       { frameWidth: 76,  frameHeight: 88  })
+    this.load.spritesheet('sor-boss-zamza',  'assets/sprites/sor-boss-zamza.png',  { frameWidth: 76,  frameHeight: 82  })
+    this.load.spritesheet('sor-boss-gunner', 'assets/sprites/sor-boss-gunner.png', { frameWidth: 104, frameHeight: 104 })
 
     // === EFFECTS ===
     this.load.spritesheet('hit-effects',    'assets/sprites/hit-effects.png',    { frameWidth: 144, frameHeight: 144 })
@@ -127,12 +129,22 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'macaque-hurt',   frames: anims.generateFrameNumbers('macaque-hurt',   { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
 
-    // SoR enemy — 6 cols × 3 rows, 76×88 per frame
+    // SoR grunt — 6 cols × 3 rows, 76×88
     anims.create({ key: 'sor-walk',      frames: anims.generateFrameNumbers('sor-enemy', { start: 0,  end: 5  }), frameRate: 8,  repeat: -1 })
     anims.create({ key: 'sor-attack',    frames: anims.generateFrameNumbers('sor-enemy', { start: 6,  end: 11 }), frameRate: 10, repeat: 0  })
     anims.create({ key: 'sor-hurt',      frames: anims.generateFrameNumbers('sor-enemy', { start: 12, end: 13 }), frameRate: 8,  repeat: 0  })
     anims.create({ key: 'sor-knockdown', frames: anims.generateFrameNumbers('sor-enemy', { start: 14, end: 16 }), frameRate: 8,  repeat: 0  })
     anims.create({ key: 'sor-down',      frames: anims.generateFrameNumbers('sor-enemy', { start: 17, end: 17 }), frameRate: 2,  repeat: -1 })
+
+    // SoR boss — Zamza (76×82, 10c×8r = 80 frames)
+    anims.create({ key: 'zamza-walk',   frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 0,  end: 9  }), frameRate: 8,  repeat: -1 })
+    anims.create({ key: 'zamza-attack', frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 20, end: 27 }), frameRate: 10, repeat: 0  })
+    anims.create({ key: 'zamza-hurt',   frames: anims.generateFrameNumbers('sor-boss-zamza', { start: 50, end: 54 }), frameRate: 8,  repeat: 0  })
+
+    // SoR boss — Gunner (104×104, 4c×8r = 32 frames)
+    anims.create({ key: 'gunner-walk',   frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 0,  end: 3  }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'gunner-attack', frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 12, end: 17 }), frameRate: 10, repeat: 0  })
+    anims.create({ key: 'gunner-hurt',   frames: anims.generateFrameNumbers('sor-boss-gunner', { start: 20, end: 23 }), frameRate: 8,  repeat: 0  })
 
     anims.create({ key: 'hit-spark',      frames: anims.generateFrameNumbers('hit-effects',    { start: 0, end: 3 }), frameRate: 16, repeat: 0 })
     anims.create({ key: 'boss-shockwave', frames: anims.generateFrameNumbers('boss-shockwave', { start: 0, end: 3 }), frameRate: 12, repeat: 0 })
