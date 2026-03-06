@@ -130,38 +130,41 @@ export default class GameScene extends Phaser.Scene {
     if (!waveCfg) return
     this.pendingSpawns = (this.pendingSpawns || 0) + waveCfg.count
 
-    for (let i = 0; i < waveCfg.count; i++) {
-      this.time.delayedCall(i * 320, () => {
-        if (!this.player?.active) { this.pendingSpawns = Math.max(0, this.pendingSpawns - 1); return }
+    // Spawn in simultaneous pairs — one from left, one from right at the same time
+    const pairs = Math.ceil(waveCfg.count / 2)
+    for (let p = 0; p < pairs; p++) {
+      const spawnCount = (p === pairs - 1 && waveCfg.count % 2 === 1) ? 1 : 2
+      this.time.delayedCall(p * 400, () => {
+        for (let s = 0; s < spawnCount; s++) {
+          if (!this.player?.active) { this.pendingSpawns = Math.max(0, this.pendingSpawns - 1); continue }
 
-        // 4-corner distribution: cycle through TL, TR, BL, BR
-        const corner  = i % 4
-        const fromLeft = corner === 0 || corner === 2
-        const fromTop  = corner === 0 || corner === 1
-        const cam    = this.cameras.main
-        const spawnX = fromLeft
-          ? cam.scrollX - 80
-          : cam.scrollX + cam.width + 80
-        const y      = fromTop
-          ? Phaser.Math.Between(this.walkTop + 20,  this.walkTop  + 80)
-          : Phaser.Math.Between(this.walkBottom - 80, this.walkBottom - 20)
+          const fromLeft = s === 0  // first of pair from left, second from right
+          const fromTop  = Phaser.Math.Between(0, 1) === 0
+          const cam      = this.cameras.main
+          const spawnX   = fromLeft
+            ? cam.scrollX - 80
+            : cam.scrollX + cam.width + 80
+          const y        = fromTop
+            ? Phaser.Math.Between(this.walkTop + 20,  this.walkTop  + 80)
+            : Phaser.Math.Between(this.walkBottom - 80, this.walkBottom - 20)
 
-        const isSoR = this.levelData.enemyType === 'sor'
-        const e = new Enemy(this, spawnX, y, {
-          texture:      isSoR ? 'sor-enemy'   : 'macaque-walk',
-          walkAnim:     isSoR ? 'sor-walk'    : 'macaque-walk',
-          attackAnim:   isSoR ? 'sor-attack'  : 'macaque-attack',
-          hurtAnim:     isSoR ? 'sor-hurt'    : 'macaque-hurt',
-          sorMode:      isSoR,
-          displayScale: isSoR ? 2.5 : 1.0,   // SoR sprites are 76×88 — scale up to match game size
-          hp:     waveCfg.hp,
-          speed:  waveCfg.speed,
-          damage: waveCfg.damage,
-        })
-        e.setTarget(this.player)
-        e.body.setCollideWorldBounds(true)
-        this.enemies.push(e)
-        this.pendingSpawns = Math.max(0, this.pendingSpawns - 1)
+          const isSoR = this.levelData.enemyType === 'sor'
+          const e = new Enemy(this, spawnX, y, {
+            texture:      isSoR ? 'sor-enemy'   : 'macaque-walk',
+            walkAnim:     isSoR ? 'sor-walk'    : 'macaque-walk',
+            attackAnim:   isSoR ? 'sor-attack'  : 'macaque-attack',
+            hurtAnim:     isSoR ? 'sor-hurt'    : 'macaque-hurt',
+            sorMode:      isSoR,
+            displayScale: isSoR ? 2.5 : 1.0,
+            hp:     waveCfg.hp,
+            speed:  waveCfg.speed,
+            damage: waveCfg.damage,
+          })
+          e.setTarget(this.player)
+          e.body.setCollideWorldBounds(true)
+          this.enemies.push(e)
+          this.pendingSpawns = Math.max(0, this.pendingSpawns - 1)
+        }
       })
     }
   }
