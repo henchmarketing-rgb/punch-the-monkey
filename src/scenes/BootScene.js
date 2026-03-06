@@ -39,17 +39,11 @@ export default class BootScene extends Phaser.Scene {
 
     // === AUDIO ===
     // Music
-    this.load.audio('music-title',  'assets/audio/music-title.mp3')
-    this.load.audio('music-level1',  'assets/audio/music-level1.mp3')
-    this.load.audio('music-level2',  'assets/audio/music-level2.mp3')
-    this.load.audio('music-zoo',        'assets/audio/music-zoo.mp3')
-    this.load.audio('music-city1',      'assets/audio/music-city1.mp3')
-    this.load.audio('music-city2',      'assets/audio/music-city2.mp3')
-    this.load.audio('music-forest1',    'assets/audio/music-forest1.mp3')
-    this.load.audio('music-forest2',    'assets/audio/music-forest2.mp3')
-    this.load.audio('music-boss-final', 'assets/audio/music-boss-final.mp3')
-    this.load.audio('music-credits',    'assets/audio/music-credits.mp3')
-    this.load.audio('music-boss',   'assets/audio/music-boss.mp3')
+    // ── Zone 1 music — load at boot (needed immediately)
+    this.load.audio('music-title', 'assets/audio/music-title.mp3')
+    this.load.audio('music-zoo',   'assets/audio/music-zoo.mp3')
+    this.load.audio('music-boss',  'assets/audio/music-boss.mp3')
+    // Zone 2 + 3 music lazy-loaded by GameScene when entering each zone
     // SFX
     this.load.audio('sfx-punch',          'assets/audio/sfx-punch.wav')
     this.load.audio('sfx-kick',           'assets/audio/sfx-kick.mp3')
@@ -67,29 +61,29 @@ export default class BootScene extends Phaser.Scene {
 
     // === BACKGROUNDS ===
     // Zone 1 — Zoo
-    this.load.image('bg-zoo',    'assets/backgrounds/bg-zoo.png')
-    this.load.image('bg-zoo2',   'assets/backgrounds/bg-zoo2.png')
-    this.load.image('bg-zoo3',   'assets/backgrounds/bg-zoo3.png')
-    this.load.image('bg-zoo4',   'assets/backgrounds/bg-zoo4.png')
-    this.load.image('bg-dusk',   'assets/backgrounds/bg-dusk.png')
+    this.load.image('bg-zoo',    'assets/backgrounds/bg-zoo.webp')
+    this.load.image('bg-zoo2',   'assets/backgrounds/bg-zoo2.webp')
+    this.load.image('bg-zoo3',   'assets/backgrounds/bg-zoo3.webp')
+    this.load.image('bg-zoo4',   'assets/backgrounds/bg-zoo4.webp')
+    this.load.image('bg-dusk',   'assets/backgrounds/bg-dusk.webp')
 
     // Zone 2 — Escape
-    this.load.image('bg-escape',  'assets/backgrounds/bg-escape.png')
-    this.load.image('bg-escape2', 'assets/backgrounds/bg-escape2.png')
-    this.load.image('bg-escape3', 'assets/backgrounds/bg-escape3.png')
-    this.load.image('bg-escape4', 'assets/backgrounds/bg-escape4.png')
+    this.load.image('bg-escape',  'assets/backgrounds/bg-escape.webp')
+    this.load.image('bg-escape2', 'assets/backgrounds/bg-escape2.webp')
+    this.load.image('bg-escape3', 'assets/backgrounds/bg-escape3.webp')
+    this.load.image('bg-escape4', 'assets/backgrounds/bg-escape4.webp')
 
     // Zone 3 — Streets
-    this.load.image('bg-street',  'assets/backgrounds/bg-street.png')
-    this.load.image('bg-street2', 'assets/backgrounds/bg-street2.png')
+    this.load.image('bg-street',  'assets/backgrounds/bg-street.webp')
+    this.load.image('bg-street2', 'assets/backgrounds/bg-street2.webp')
     // bg-street3 pending
     // bg-street4 pending
 
     // Zone 4 — Forest
-    this.load.image('bg-forest',  'assets/backgrounds/bg-forest.png')
-    this.load.image('bg-forest2', 'assets/backgrounds/bg-forest2.png')
+    this.load.image('bg-forest',  'assets/backgrounds/bg-forest.webp')
+    this.load.image('bg-forest2', 'assets/backgrounds/bg-forest2.webp')
     // bg-forest3 pending
-    this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.png')
+    this.load.image('bg-forest4', 'assets/backgrounds/bg-forest4.webp')
     this.load.image('title-bg',  'assets/ui/title-bg.png')
     this.load.image('banana',    'assets/items/banana.png')
 
