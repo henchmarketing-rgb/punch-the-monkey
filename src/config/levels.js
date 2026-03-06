@@ -126,7 +126,7 @@ export const LEVELS = [
   },
   {
     id: 12, zone: 'wild', name: 'HOME',
-    bg: 'bg-forest4', musicKey: 'music-forest2',
+    bg: 'bg-forest4', musicKey: 'music-boss-final',
     waves: [
       { count: 10, hp: 45, speed: 154, damage: 10 },
       { count: 16, hp: 45, speed: 158, damage: 10 },
