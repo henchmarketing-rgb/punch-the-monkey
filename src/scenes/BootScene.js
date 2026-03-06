@@ -22,6 +22,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('macaque-attack', 'assets/sprites/macaque-attack.png', { frameWidth: 390, frameHeight: 300 })
     this.load.spritesheet('macaque-hurt',   'assets/sprites/macaque-hurt.png',   { frameWidth: 270, frameHeight: 270 })
 
+    // === ZOOKEEPER BOSS ===
+    this.load.spritesheet('zookeeper', 'assets/sprites/zookeeper.png', { frameWidth: 192, frameHeight: 355 })
+
     // === SOR ENEMY + BOSSES (L9 — Streets of Rage homage) ===
     this.load.spritesheet('sor-enemy',       'assets/sprites/sor-enemy.png',       { frameWidth: 76,  frameHeight: 88  })
     this.load.spritesheet('sor-boss-zamza',  'assets/sprites/sor-boss-zamza.png',  { frameWidth: 76,  frameHeight: 82  })
@@ -128,6 +131,11 @@ export default class BootScene extends Phaser.Scene {
     anims.create({ key: 'macaque-walk',   frames: anims.generateFrameNumbers('macaque-walk',   { start: 0, end: 3 }), frameRate: 7, repeat: -1 })
     anims.create({ key: 'macaque-attack', frames: anims.generateFrameNumbers('macaque-attack', { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
     anims.create({ key: 'macaque-hurt',   frames: anims.generateFrameNumbers('macaque-hurt',   { start: 0, end: 1 }), frameRate: 8, repeat: 0  })
+
+    // Zookeeper boss — 8 frames (192×355): 0-4 walk, 5-6 attack, 7 hurt
+    anims.create({ key: 'zookeeper-walk',   frames: anims.generateFrameNumbers('zookeeper', { start: 0, end: 4 }), frameRate: 7,  repeat: -1 })
+    anims.create({ key: 'zookeeper-attack', frames: anims.generateFrameNumbers('zookeeper', { start: 5, end: 6 }), frameRate: 9,  repeat: 0  })
+    anims.create({ key: 'zookeeper-hurt',   frames: anims.generateFrameNumbers('zookeeper', { start: 7, end: 7 }), frameRate: 6,  repeat: 0  })
 
     // SoR grunt — 6 cols × 3 rows, 76×88
     anims.create({ key: 'sor-walk',      frames: anims.generateFrameNumbers('sor-enemy', { start: 0,  end: 5  }), frameRate: 8,  repeat: -1 })

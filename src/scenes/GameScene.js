@@ -147,9 +147,10 @@ export default class GameScene extends Phaser.Scene {
 
   _makeSorBoss(type, x, y, hpMultiplier) {
     const configs = {
-      zamza:  { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk', attackAnim: 'zamza-attack', hurtAnim: 'zamza-hurt', speed: 155 },
-      jack:   { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',  attackAnim: 'jack-attack',  hurtAnim: 'jack-hurt',  speed: 140 },
-      electra:{ texture: 'sor-boss-electra',walkAnim:'electra-walk',attackAnim:'electra-attack',hurtAnim:'electra-hurt',speed: 148 },
+      zamza:      { texture: 'sor-boss-zamza', walkAnim: 'zamza-walk',      attackAnim: 'zamza-attack',      hurtAnim: 'zamza-hurt',      speed: 155 },
+      jack:       { texture: 'sor-boss-jack',  walkAnim: 'jack-walk',       attackAnim: 'jack-attack',       hurtAnim: 'jack-hurt',       speed: 140 },
+      electra:    { texture: 'sor-boss-electra',walkAnim:'electra-walk',    attackAnim:'electra-attack',     hurtAnim:'electra-hurt',     speed: 148 },
+      zookeeper:  { texture: 'zookeeper',      walkAnim: 'zookeeper-walk',  attackAnim: 'zookeeper-attack',  hurtAnim: 'zookeeper-hurt',  speed: 145 },
     }
     const cfg = configs[type]
     if (!cfg || !this.textures.exists(cfg.texture)) return null
@@ -273,6 +274,9 @@ export default class GameScene extends Phaser.Scene {
           } else if (isEaster) {
             title    = '?!?!?!'
             subtitle = '— THIS FEELS FAMILIAR —'
+          } else if (sorBoss === 'zookeeper') {
+            title    = 'THE ZOOKEEPER'
+            subtitle = '— PUT IT BACK IN THE CAGE —'
           } else if (sorBoss === 'zamza') {
             title    = 'ZAMZA'
             subtitle = '— THE CLAWS —'
