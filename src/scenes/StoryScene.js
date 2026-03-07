@@ -4,15 +4,17 @@ export default class StoryScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale
 
-    // ── BACKGROUND — same dusk zoo as title screen ──
-    if (this.textures.exists('title-bg')) {
+    // ── BACKGROUND ──
+    if (this.textures.exists('bg-lore')) {
+      this.add.image(width / 2, height / 2, 'bg-lore').setDisplaySize(width, height)
+    } else if (this.textures.exists('title-bg')) {
       this.add.image(width / 2, height / 2, 'title-bg').setDisplaySize(width, height)
     } else {
       this.add.rectangle(0, 0, width, height, 0x07061a).setOrigin(0, 0)
     }
 
     // Dark overlay so text is readable over the background
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.68).setOrigin(0, 0)
+    this.add.rectangle(0, 0, width, height, 0x000510, 0.72).setOrigin(0, 0)
 
     // Subtle orange bottom glow (brand accent)
     const glow = this.add.graphics()

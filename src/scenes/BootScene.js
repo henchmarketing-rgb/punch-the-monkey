@@ -90,6 +90,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('bg-level10', 'assets/backgrounds/bg-level10.webp')
     this.load.image('bg-level11', 'assets/backgrounds/bg-level11.webp')
     this.load.image('bg-level12', 'assets/backgrounds/bg-level12.webp')
+    this.load.image('bg-lore',    'assets/backgrounds/bg-lore.png')
     this.load.image('title-bg',   'assets/ui/title-bg.png')
     this.load.image('banana',     'assets/items/banana.png')
 

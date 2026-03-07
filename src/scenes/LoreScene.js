@@ -95,8 +95,14 @@ export default class LoreScene extends Phaser.Scene {
     // Full black base
     this.add.rectangle(0, 0, width, height, 0x000000).setOrigin(0, 0)
 
-    // Subtle dark forest bg tint
-    this.add.rectangle(0, 0, width, height, 0x050f02, 0.92).setOrigin(0, 0)
+    // Lore background image — cover-fit, centred
+    if (this.textures.exists('bg-lore')) {
+      const bg = this.add.image(width / 2, height / 2, 'bg-lore')
+      bg.setDisplaySize(width, height).setAlpha(0.55)
+    }
+
+    // Dark overlay so text stays readable
+    this.add.rectangle(0, 0, width, height, 0x050510, 0.72).setOrigin(0, 0)
 
     // Punch-kun walks left → right across the lower third
     const walkY   = height * 0.72
