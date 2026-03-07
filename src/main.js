@@ -31,6 +31,7 @@ const config = {
 
 try {
   const game = new Phaser.Game(config)
+  window.game = game   // debug access
   // Resume Web Audio when tab becomes visible (fixes cut/distortion after being inactive)
   if (typeof document !== 'undefined' && document.addEventListener) {
     document.addEventListener('visibilitychange', () => {

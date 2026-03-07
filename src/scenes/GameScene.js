@@ -18,7 +18,8 @@ export default class GameScene extends Phaser.Scene {
     this._bananaSpawnedThisWave  = false
     this.pendingSpawns           = 0
     this._cinemaMode             = false
-    this._waveStuckTimer         = null
+    this._waveKillCount          = 0   // counts down enemies remaining in current wave
+    this._advancingWave          = false  // guard: prevents double-advance between waves
   }
 
   create() {
@@ -175,6 +176,7 @@ export default class GameScene extends Phaser.Scene {
 
   spawnWave(waveCfg) {
     if (!waveCfg) return
+    this._waveKillCount = waveCfg.count   // must receive exactly this many deaths before advancing
     this.pendingSpawns = (this.pendingSpawns || 0) + waveCfg.count
 
     // Spawn in simultaneous pairs — one from left, one from right at the same time
@@ -273,7 +275,9 @@ export default class GameScene extends Phaser.Scene {
   // ── WAVE RUNNER ───────────────────────────────────────────────────────────
 
   advanceWave() {
-    if (this._bossSpawning) return  // boss wave locked — ignore stray enemy-defeated calls
+    if (this._bossSpawning) return   // boss wave locked — ignore stray enemy-defeated calls
+    if (this._advancingWave) return  // already mid-advance — ignore stray enemy-defeated calls
+    this._advancingWave = true
     this.wave++
     const entry = this.levelData.waves[this.wave - 1]
 
@@ -287,6 +291,7 @@ export default class GameScene extends Phaser.Scene {
 
     if (entry.boss) {
       // Lock immediately — advance only after last character has done their last action (removed from list)
+      this._advancingWave = false  // bossSpawning takes over from here
       this._bossSpawning = true
       const MAX_BOSS_RETRIES = 150  // ~30s max wait so we never hang forever
       let retries = 0
@@ -317,7 +322,10 @@ export default class GameScene extends Phaser.Scene {
         })
       }
     } else {
-      this.time.delayedCall(1400, () => this.spawnWave(entry))
+      this.time.delayedCall(1400, () => {
+        this._advancingWave = false  // unlock — next wave starting, deaths can advance again
+        this.spawnWave(entry)
+      })
     }
   }
 
@@ -648,10 +656,10 @@ export default class GameScene extends Phaser.Scene {
     this.enemies = this.enemies.filter(e => e !== enemy)
     this.score += 100
     this.events.emit('score-update', this.score)
-    // Prune dead enemies — ko enemies stay active=true for 380ms during death anim,
-    // so filter on aiState too, otherwise the last enemy check blocks wave advancement
-    this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')
-    if (this.enemies.length > 0 || (this.pendingSpawns || 0) > 0) return
+    // Count down — advance only when every expected enemy in this wave has died
+    // (enemies.length is unreliable: ko enemies stay active=true for 380ms during death anim)
+    this._waveKillCount = Math.max(0, (this._waveKillCount || 0) - 1)
+    if (this._waveKillCount > 0 || (this.pendingSpawns || 0) > 0) return
     this.advanceWave()
   }
 
@@ -790,24 +798,6 @@ export default class GameScene extends Phaser.Scene {
         this.awaitingAdvance = false
         this.events.emit('advance-prompt', false)
         this.nextLevel()
-      }
-    }
-
-    // Safety net: if all enemies dead but wave hasn't advanced, force it after a short grace window
-    if (!this._cinemaMode && !this.awaitingAdvance && !this._bossSpawning) {
-      this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')
-      if (this.enemies.length === 0 && (this.pendingSpawns || 0) === 0) {
-        if (!this._waveStuckTimer) {
-          this._waveStuckTimer = this.time.delayedCall(800, () => {
-            this._waveStuckTimer = null
-            if (!this.awaitingAdvance && !this._bossSpawning &&
-                this.enemies.length === 0 && (this.pendingSpawns || 0) === 0) {
-              this.advanceWave()
-            }
-          })
-        }
-      } else {
-        if (this._waveStuckTimer) { this._waveStuckTimer.remove(); this._waveStuckTimer = null }
       }
     }
 
