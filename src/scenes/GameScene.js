@@ -27,24 +27,16 @@ export default class GameScene extends Phaser.Scene {
     })
 
     const { width, height } = this.scale
-    // L1: wider world so background scrolls left with player when moving right; other levels keep default
-    this.worldW = this.levelData.id === 1 ? Math.floor(width * 2.2) : Math.floor(width * 1.30)
+    this.worldW = Math.floor(width * 1.30)
     const worldW = this.worldW
 
+    // Same as L2: single image, scrollFactor 1 — camera scroll in update() moves view so bg scrolls
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
-    // L1: tiled background so it fills wider world and scrolls with camera
-    if (this.levelData.id === 1) {
-      this.bg = this.add.tileSprite(0, 0, worldW, height, bgKey)
-        .setOrigin(0, 0)
-        .setScrollFactor(1)
-        .setDepth(0)
-    } else {
-      this.bg = this.add.image(0, 0, bgKey)
-        .setOrigin(0, 0)
-        .setDisplaySize(this.worldW, height)
-        .setScrollFactor(1)
-        .setDepth(0)
-    }
+    this.bg = this.add.image(0, 0, bgKey)
+      .setOrigin(0, 0)
+      .setDisplaySize(this.worldW, height)
+      .setScrollFactor(1)
+      .setDepth(0)
 
     const topRatio  = this.levelData.walkTopRatio    ?? 0.42
     const botRatio  = this.levelData.walkBottomRatio ?? 0.93
@@ -58,7 +50,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.player = new Player(this, width * 0.15, height * 0.80)
     this.player.body.setCollideWorldBounds(true)
-    // Belt-scroller: camera only advances RIGHT — never scrolls back left
+    // Belt-scroller: camera only advances RIGHT — never scrolls back left (same for all levels including L1/L2)
     this.cameras.main.stopFollow()
     this._camTargetX = 0
 
