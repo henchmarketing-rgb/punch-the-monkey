@@ -2,6 +2,9 @@ export default class BootScene extends Phaser.Scene {
   constructor() { super('Boot') }
 
   preload() {
+    // Load lore bg first — it's the loading screen backdrop, shown as soon as it arrives
+    this.load.image('bg-lore', 'assets/backgrounds/bg-lore.png')
+
     // === PUNCH-KUN ===
     this.load.image('punch-idle',     'assets/sprites/punch-idle.png')
     this.load.spritesheet('punch-walk',    'assets/sprites/punch-walk.png',    { frameWidth: 174, frameHeight: 240 })
@@ -90,7 +93,6 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('bg-level10', 'assets/backgrounds/bg-level10.webp')
     this.load.image('bg-level11', 'assets/backgrounds/bg-level11.webp')
     this.load.image('bg-level12', 'assets/backgrounds/bg-level12.webp')
-    this.load.image('bg-lore',    'assets/backgrounds/bg-lore.png')
     this.load.image('title-bg',   'assets/ui/title-bg.png')
     this.load.image('banana',     'assets/items/banana.png')
 
@@ -98,6 +100,13 @@ export default class BootScene extends Phaser.Scene {
     this.createFallbackBG()
 
     this.load.on('loaderror', (file) => console.warn('Asset load error:', file.key))
+
+    // Show bg-lore as loading screen backdrop the moment it finishes loading
+    this.load.once('filecomplete-image-bg-lore', () => {
+      const { width: w, height: h } = this.scale
+      this.add.image(w / 2, h / 2, 'bg-lore').setDisplaySize(w, h).setDepth(1)
+      this.add.rectangle(0, 0, w, h, 0x000510, 0.72).setOrigin(0, 0).setDepth(2)
+    })
 
     // ── Progress bar ──
     const { width, height } = this.scale
