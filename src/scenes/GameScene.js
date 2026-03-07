@@ -20,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
     this._cinemaMode             = false
     this._waveKillCount          = 0   // counts down enemies remaining in current wave
     this._advancingWave          = false  // guard: prevents double-advance between waves
+    this._levelTransitioning     = false  // guard: prevents double nextLevel() calls
   }
 
   create() {
@@ -245,7 +246,7 @@ export default class GameScene extends Phaser.Scene {
 
     let boss = sorBossType ? this._makeSorBoss(sorBossType, spawnX, spawnY, hpMultiplier) : null
     if (!boss) boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
-    else this.events.emit('boss-spawn', boss)
+    else this.game.events.emit('boss-spawn', boss)
 
     boss.setTarget(this.player)
     boss.body.setCollideWorldBounds(true)
@@ -284,7 +285,7 @@ export default class GameScene extends Phaser.Scene {
     if (!entry) {
       this.time.delayedCall(600, () => {
         this.awaitingAdvance = true
-        this.events.emit('advance-prompt', true)
+        this.game.events.emit('advance-prompt', true)
       })
       return
     }
@@ -510,7 +511,7 @@ export default class GameScene extends Phaser.Scene {
 
   _collectBanana() {
     this.lives++
-    this.events.emit('lives-update', this.lives)
+    this.game.events.emit('lives-update', this.lives)
 
     if (this.cache.audio.exists('sfx-level-complete')) {
       this.sound.play('sfx-level-complete', { volume: 0.7 })
@@ -571,7 +572,7 @@ export default class GameScene extends Phaser.Scene {
       if (Phaser.Math.Distance.Between(x, enemy.y, enemy.x, enemy.y) <= range) {
         enemy.takeHit(damage)
         this.score += 10
-        this.events.emit('score-update', this.score)
+        this.game.events.emit('score-update', this.score)
         this.spawnHitEffect(enemy.x, enemy.y - 60)
       }
     })
@@ -586,7 +587,7 @@ export default class GameScene extends Phaser.Scene {
       }
     })
     this.score += 50
-    this.events.emit('score-update', this.score)
+    this.game.events.emit('score-update', this.score)
   }
 
   handleEnemyAttack({ enemy, damage }) {
@@ -609,7 +610,7 @@ export default class GameScene extends Phaser.Scene {
   onEnemyDefeated(enemy) {
     this.enemies = this.enemies.filter(e => e !== enemy)
     this.score += 100
-    this.events.emit('score-update', this.score)
+    this.game.events.emit('score-update', this.score)
     // Count down - advance only when every expected enemy in this wave has died
     // (enemies.length is unreliable: ko enemies stay active=true for 380ms during death anim)
     this._waveKillCount = Math.max(0, (this._waveKillCount || 0) - 1)
@@ -622,7 +623,7 @@ export default class GameScene extends Phaser.Scene {
     this._cinemaMode = false                              // ensure camera/freeze state is clear
     if (this.player) this.player._frozen = false          // ensure player is never left frozen
     this.score += 1000
-    this.events.emit('score-update', this.score)
+    this.game.events.emit('score-update', this.score)
 
     // Track multi-boss count
     this.activeBossCount = Math.max(0, this.activeBossCount - 1)
@@ -631,13 +632,14 @@ export default class GameScene extends Phaser.Scene {
     this._bossSpawning = false            // unlock for any subsequent boss waves
     this._bananaSpawnedThisWave = false   // reset for next boss encounter
     this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')  // remove defeated boss(es)
+    this.game.events.emit('boss-defeated')   // notify UIScene to hide boss HP bar
 
     const nextEntry = this.levelData.waves[this.wave]
     this.time.delayedCall(1200, () => {
       if (!nextEntry) {
         this._resumeLevelMusic()
         this.awaitingAdvance = true
-        this.events.emit('advance-prompt', true)
+        this.game.events.emit('advance-prompt', true)
       } else if (nextEntry.boss && nextEntry.final) {
         // L16 special: cinematic then final solo boss
         this.showFinalBossCinematic(() => {
@@ -668,7 +670,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.music) { this.music.destroy(); this.music = null }
     if (this.bossMusic) { this.bossMusic.destroy(); this.bossMusic = null }
     this.lives--
-    this.events.emit('lives-update', this.lives)
+    this.game.events.emit('lives-update', this.lives)
     this.time.delayedCall(1800, () => {
       this.scene.stop('UI')
       if (this.lives > 0) {
@@ -679,7 +681,17 @@ export default class GameScene extends Phaser.Scene {
     })
   }
 
+  // Called by UIScene's NEXT LEVEL button (or walk-right fallback in update)
+  triggerAdvance() {
+    if (!this.awaitingAdvance || this._levelTransitioning) return
+    this.awaitingAdvance = false
+    this.game.events.emit('advance-prompt', false)
+    this.nextLevel()
+  }
+
   nextLevel() {
+    if (this._levelTransitioning) return
+    this._levelTransitioning = true
     if (this.music) { this.music.destroy(); this.music = null }
     if (this.bossMusic) { this.bossMusic.destroy(); this.bossMusic = null }
     if (this.cache.audio.exists('sfx-level-complete')) {
@@ -751,9 +763,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.awaitingAdvance) {
       const cam = this.cameras.main
       if (this.player.x >= cam.scrollX + cam.width - 140) {
-        this.awaitingAdvance = false
-        this.events.emit('advance-prompt', false)
-        this.nextLevel()
+        this.triggerAdvance()
       }
     }
 

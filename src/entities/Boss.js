@@ -21,8 +21,8 @@ export default class Boss extends Enemy {
     this.shockwaveTimer = 0
     this.hurtAnim = null  // boss has no hurt anim, just flashes
 
-    // Announce boss spawn for UI
-    scene.events.emit('boss-spawn', this)
+    // Announce boss spawn for UI (use game.events — survives scene restarts)
+    scene.game.events.emit('boss-spawn', this)
   }
 
   update(time, delta) {
@@ -67,8 +67,8 @@ export default class Boss extends Enemy {
     this.setTint(0xff4444)
     this.scene.time.delayedCall(150, () => { if (this.active) this.clearTint() })
 
-    // Update boss HP bar
-    if (this.scene) this.scene.events.emit('boss-hp-update', { hp: this.hp, maxHp: this.maxHp })
+    // Update boss HP bar (use game.events — survives scene restarts)
+    if (this.scene) this.scene.game.events.emit('boss-hp-update', { hp: this.hp, maxHp: this.maxHp })
 
     if (this.hp <= 0) {
       this.hp = 0

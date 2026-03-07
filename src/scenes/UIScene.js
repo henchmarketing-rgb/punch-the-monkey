@@ -314,7 +314,7 @@ export default class UIScene extends Phaser.Scene {
     })
 
     // ── EVENTS FROM GAME ──
-    game.events.on('score-update', (score) => {
+    this.game.events.on('score-update', (score) => {
       this.scoreText.setText('SCORE ' + score)
     }, this)
 
@@ -379,50 +379,68 @@ export default class UIScene extends Phaser.Scene {
         else                  this.hpBar.setFillStyle(0xc42020)
       }
     }
-    game.events.on('player-hurt',  updateHpBar, this)
-    game.events.on('player-regen', updateHpBar, this)
+    this.game.events.on('player-hurt',  updateHpBar, this)
+    this.game.events.on('player-regen', updateHpBar, this)
 
     // Clean up low-health effect when player dies
-    game.events.once('player-ko', () => stopLowHealthEffect(), this)
+    this.game.events.on('player-ko', () => stopLowHealthEffect(), this)
 
-    // ── ADVANCE PROMPT (walk-to-right arrow) ──
-    this.advancePrompt = this.add.text(width - 28, height / 2, '▶▶', {
-      fontSize: '16px', fontFamily: 'monospace', color: '#ffdd88',
+    // ── NEXT LEVEL BUTTON (replaces walk-to-right ▶▶ prompt) ──
+    const btnW = 220, btnH = 54
+    const btnX = width / 2, btnY = height / 2
+
+    // Backing panel
+    const btnBg = this.add.rectangle(btnX, btnY, btnW + 8, btnH + 8, 0x000000, 0.55)
+      .setScrollFactor(0).setDepth(109).setVisible(false)
+    const btnFill = this.add.rectangle(btnX, btnY, btnW, btnH, 0xff8c00, 1)
+      .setScrollFactor(0).setDepth(110).setVisible(false)
+    const btnText = this.add.text(btnX, btnY, 'NEXT LEVEL  ▶', {
+      fontSize: '22px', fontFamily: 'monospace', color: '#ffffff',
       stroke: '#000000', strokeThickness: 3,
-      backgroundColor: '#00000088', padding: { x: 12, y: 6 },
-    }).setOrigin(1, 0.5).setDepth(110).setVisible(false)
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(111).setVisible(false)
+
+    this.advancePrompt = btnFill  // keep ref for any legacy checks
     this._advanceTween = null
 
-    game.events.on('advance-prompt', (show) => {
-      this.advancePrompt.setVisible(show)
+    const showNextBtn = (show) => {
+      btnBg.setVisible(show)
+      btnFill.setVisible(show)
+      btnText.setVisible(show)
       if (show) {
+        btnFill.setAlpha(1); btnText.setAlpha(1)
         if (this._advanceTween) this._advanceTween.stop()
-        this.advancePrompt.setAlpha(1)
         this._advanceTween = this.tweens.add({
-          targets: this.advancePrompt,
-          alpha: 0.3, duration: 500, yoyo: true, repeat: -1,
-          ease: 'Sine.easeInOut',
+          targets: [btnFill, btnText], alpha: 0.65,
+          duration: 480, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
         })
+        btnFill.setInteractive({ useHandCursor: true })
+        btnText.setInteractive({ useHandCursor: true })
+        const onTap = () => { this.scene.get('Game')?.triggerAdvance?.() }
+        btnFill.once('pointerdown', onTap)
+        btnText.once('pointerdown', onTap)
       } else {
+        btnFill.removeInteractive()
+        btnText.removeInteractive()
         if (this._advanceTween) { this._advanceTween.stop(); this._advanceTween = null }
-        this.advancePrompt.setAlpha(0)
       }
-    }, this)
+    }
 
-    game.events.on('boss-spawn', () => {
+    this.game.events.on('advance-prompt', (show) => showNextBtn(show), this)
+
+    this.game.events.on('boss-spawn', () => {
       this.bossBarGroup.setVisible(true)
     }, this)
 
-    game.events.on('boss-hp-update', ({ hp, maxHp }) => {
+    this.game.events.on('boss-hp-update', ({ hp, maxHp }) => {
       const pct = Math.max(0, hp / maxHp)
       this.bossBar.width = Math.floor(this.bossMaxW * pct)
     }, this)
 
-    game.events.on('lives-update', (remaining) => {
+    this.game.events.on('lives-update', (remaining) => {
       this.livesIcons.forEach((ic, i) => ic.setAlpha(i < remaining ? 1 : 0.18))
-    })
+    }, this)
 
-    game.events.on('boss-defeated', () => {
+    this.game.events.on('boss-defeated', () => {
       this.bossBarGroup.setVisible(false)
     }, this)
   }
@@ -433,6 +451,16 @@ export default class UIScene extends Phaser.Scene {
     if (this._lowHealthTween) { this._lowHealthTween.stop();   this._lowHealthTween = null }
     this._lowHealthActive = false
     this._spcLit = -1
+    // Clean up global game.events listeners (they survive scene restarts, must remove manually)
+    this.game.events.off('score-update',  null, this)
+    this.game.events.off('player-hurt',   null, this)
+    this.game.events.off('player-regen',  null, this)
+    this.game.events.off('player-ko',     null, this)
+    this.game.events.off('advance-prompt',null, this)
+    this.game.events.off('boss-spawn',    null, this)
+    this.game.events.off('boss-hp-update',null, this)
+    this.game.events.off('lives-update',  null, this)
+    this.game.events.off('boss-defeated', null, this)
   }
 
   update(time, delta) {

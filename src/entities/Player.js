@@ -96,7 +96,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
       if (this._regenTimer >= this._regenDelay) {
         const gain = (this._regenRate * delta) / 1000
         this.hp = Math.min(this.maxHp, this.hp + gain)
-        this.scene.events.emit('player-regen', this.hp)
+        this.scene.game.events.emit('player-regen', this.hp)
       }
     }
 
@@ -205,13 +205,14 @@ export default class Player extends Phaser.GameObjects.Sprite {
       this.hp = 0
       this.state = 'ko'
       if (this.scene.cache.audio.exists('sfx-player-death')) this.scene.sound.play('sfx-player-death', { volume: 0.9 })
-      this.scene.events.emit('player-ko')
+      this.scene.events.emit('player-ko')        // internal: GameScene.onPlayerKO
+      this.scene.game.events.emit('player-ko')   // cross-scene: UIScene
     } else {
       this.state = 'hurt'
       this.isAttacking = false
       this.play('punch-hurt')
       this._applyScale('normal')
-      this.scene.events.emit('player-hurt', this.hp)
+      this.scene.game.events.emit('player-hurt', this.hp)
     }
   }
 }
