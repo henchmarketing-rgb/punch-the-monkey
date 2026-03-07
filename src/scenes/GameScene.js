@@ -18,6 +18,7 @@ export default class GameScene extends Phaser.Scene {
     this._bananaSpawnedThisWave  = false
     this.pendingSpawns           = 0
     this._cinemaMode             = false
+    this._waveStuckTimer         = null
   }
 
   create() {
@@ -647,8 +648,9 @@ export default class GameScene extends Phaser.Scene {
     this.enemies = this.enemies.filter(e => e !== enemy)
     this.score += 100
     this.events.emit('score-update', this.score)
-    // Prune any ghost/destroyed refs so we don't get stuck
-    this.enemies = this.enemies.filter(e => e && e.active)
+    // Prune dead enemies — ko enemies stay active=true for 380ms during death anim,
+    // so filter on aiState too, otherwise the last enemy check blocks wave advancement
+    this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')
     if (this.enemies.length > 0 || (this.pendingSpawns || 0) > 0) return
     this.advanceWave()
   }
@@ -788,6 +790,24 @@ export default class GameScene extends Phaser.Scene {
         this.awaitingAdvance = false
         this.events.emit('advance-prompt', false)
         this.nextLevel()
+      }
+    }
+
+    // Safety net: if all enemies dead but wave hasn't advanced, force it after a short grace window
+    if (!this._cinemaMode && !this.awaitingAdvance && !this._bossSpawning) {
+      this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')
+      if (this.enemies.length === 0 && (this.pendingSpawns || 0) === 0) {
+        if (!this._waveStuckTimer) {
+          this._waveStuckTimer = this.time.delayedCall(800, () => {
+            this._waveStuckTimer = null
+            if (!this.awaitingAdvance && !this._bossSpawning &&
+                this.enemies.length === 0 && (this.pendingSpawns || 0) === 0) {
+              this.advanceWave()
+            }
+          })
+        }
+      } else {
+        if (this._waveStuckTimer) { this._waveStuckTimer.remove(); this._waveStuckTimer = null }
       }
     }
 
