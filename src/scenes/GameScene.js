@@ -27,16 +27,24 @@ export default class GameScene extends Phaser.Scene {
     })
 
     const { width, height } = this.scale
-    this.worldW = Math.floor(width * 1.30)
+    // L1: wider world so background scrolls left with player when moving right; other levels keep default
+    this.worldW = this.levelData.id === 1 ? Math.floor(width * 2.2) : Math.floor(width * 1.30)
     const worldW = this.worldW
 
-    // Background: world-space so it scrolls with camera (scrollFactor 1). Must stay 1 or bg won't move when player moves right.
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
-    this.bg = this.add.image(0, 0, bgKey)
-      .setOrigin(0, 0)
-      .setDisplaySize(this.worldW, height)
-      .setScrollFactor(1)
-      .setDepth(0)
+    // L1: tiled background so it fills wider world and scrolls with camera
+    if (this.levelData.id === 1) {
+      this.bg = this.add.tileSprite(0, 0, worldW, height, bgKey)
+        .setOrigin(0, 0)
+        .setScrollFactor(1)
+        .setDepth(0)
+    } else {
+      this.bg = this.add.image(0, 0, bgKey)
+        .setOrigin(0, 0)
+        .setDisplaySize(this.worldW, height)
+        .setScrollFactor(1)
+        .setDepth(0)
+    }
 
     const topRatio  = this.levelData.walkTopRatio    ?? 0.42
     const botRatio  = this.levelData.walkBottomRatio ?? 0.93
