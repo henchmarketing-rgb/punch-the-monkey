@@ -61,6 +61,11 @@ export default class GameScene extends Phaser.Scene {
     // Belt-scroller: camera only advances RIGHT — never scrolls back left
     this.cameras.main.stopFollow()
     this._camTargetX = 0
+    // L1: use follow + clamp so background definitely scrolls with player
+    if (this.levelData.id === 1) {
+      this._maxScrollX = 0
+      this.cameras.main.startFollow(this.player, false, 0.2, 0, -width * 0.35, 0)
+    }
 
     this.enemies = []
     this.boss    = null
@@ -801,13 +806,19 @@ export default class GameScene extends Phaser.Scene {
 
     // Right-only camera follow — camera advances as player moves right, never scrolls back (disabled during boss intro)
     if (!this._cinemaMode) {
-      const cam  = this.cameras.main
-      const maxX = this.worldW - cam.width
-      const desiredX = this.player.x - cam.width / 2
-      if (desiredX > cam.scrollX) {
-        this._camTargetX = Math.min(desiredX, maxX)
+      const cam = this.cameras.main
+      if (this.levelData.id === 1) {
+        // L1: follow already moves camera; clamp so it never scrolls left
+        this._maxScrollX = Math.max(this._maxScrollX || 0, cam.scrollX)
+        cam.scrollX = this._maxScrollX
+      } else {
+        const maxX = this.worldW - cam.width
+        const desiredX = this.player.x - cam.width / 2
+        if (desiredX > cam.scrollX) {
+          this._camTargetX = Math.min(desiredX, maxX)
+        }
+        cam.scrollX = Phaser.Math.Linear(cam.scrollX, this._camTargetX, 0.10)
       }
-      cam.scrollX = Phaser.Math.Linear(cam.scrollX, this._camTargetX, 0.10)
     }
   }
 }
