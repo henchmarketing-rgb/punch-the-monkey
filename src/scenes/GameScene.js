@@ -30,7 +30,7 @@ export default class GameScene extends Phaser.Scene {
     this.worldW = Math.floor(width * 1.30)
     const worldW = this.worldW
 
-    // Backgrounds are 1872×810 — full world width. Place at world origin and let them scroll naturally.
+    // Background: world-space so it scrolls with camera (scrollFactor 1). Must stay 1 or bg won't move when player moves right.
     const bgKey = this.textures.exists(this.levelData.bg) ? this.levelData.bg : 'bg-zoo'
     this.bg = this.add.image(0, 0, bgKey)
       .setOrigin(0, 0)
@@ -97,7 +97,8 @@ export default class GameScene extends Phaser.Scene {
     // City zone: city tracks only. All other zones: round-robin through non-city pool.
     // Boss tracks (music-boss, music-boss-final) are excluded — _startBossMusic() only.
     const CITY_POOL     = ['music-city1', 'music-city2']
-    const NON_CITY_POOL = ['music-title','music-level1','music-level2','music-forest1','music-forest2','music-credits']
+    // Intro/lore music (music-title) only in Title and Lore — never in level gameplay
+    const NON_CITY_POOL = ['music-level1','music-level2','music-forest1','music-forest2','music-credits']
 
     const isCity = this.levelData.zone === 'escape'
     const pool   = isCity
@@ -241,6 +242,7 @@ export default class GameScene extends Phaser.Scene {
 
     let boss = sorBossType ? this._makeSorBoss(sorBossType, spawnX, spawnY, hpMultiplier) : null
     if (!boss) boss = new Boss(this, spawnX, spawnY, { hpMultiplier })
+    else this.events.emit('boss-spawn', boss)
 
     boss.setTarget(this.player)
     boss.body.setCollideWorldBounds(true)
@@ -662,13 +664,14 @@ export default class GameScene extends Phaser.Scene {
 
     this._bossSpawning = false            // unlock for any subsequent boss waves
     this._bananaSpawnedThisWave = false   // reset for next boss encounter
-    this.enemies = this.enemies.filter(e => e && e.active)  // remove defeated boss (never emitted enemy-defeated)
+    this.enemies = this.enemies.filter(e => e && e.active && e.aiState !== 'ko')  // remove defeated boss(es)
 
     const nextEntry = this.levelData.waves[this.wave]
     this.time.delayedCall(1200, () => {
       if (!nextEntry) {
         this._resumeLevelMusic()
-        this.nextLevel()
+        this.awaitingAdvance = true
+        this.events.emit('advance-prompt', true)
       } else if (nextEntry.boss && nextEntry.final) {
         // L16 special: cinematic then final solo boss
         this.showFinalBossCinematic(() => {

@@ -31,6 +31,14 @@ const config = {
 
 try {
   const game = new Phaser.Game(config)
+  // Resume Web Audio when tab becomes visible (fixes cut/distortion after being inactive)
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && game.sound?.context?.state === 'suspended') {
+        game.sound.context.resume().catch(() => {})
+      }
+    })
+  }
 } catch (e) {
   document.body.innerHTML = `
     <div style="color:#8acc44;font-family:monospace;text-align:center;padding:60px 20px;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;">

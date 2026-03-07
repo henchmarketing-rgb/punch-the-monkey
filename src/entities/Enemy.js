@@ -178,6 +178,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     // ── Standard hit mechanic ────────────────────────────────────────────────
     this.hp -= damage
     this.hurtTimer = 350
+    if (this.type === 'boss' && this.scene) this.scene.events.emit('boss-hp-update', { hp: this.hp, maxHp: this.maxHp })
 
     if (this.hp <= 0) {
       this._die()
@@ -199,7 +200,9 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       this.scene.sound.play('sfx-enemy-death', { volume: 0.7 })
     }
     this.scene.time.delayedCall(380, () => {
-      if (this.scene) this.scene.events.emit('enemy-defeated', this)
+      if (!this.scene) return
+      if (this.type === 'boss') this.scene.events.emit('boss-defeated')
+      else this.scene.events.emit('enemy-defeated', this)
       this.destroy()
     })
   }
