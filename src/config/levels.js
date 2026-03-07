@@ -36,7 +36,6 @@ export const LEVELS = [
       { count: 3,  hp: 55, speed: 112, damage: 10 },
       { count: 6,  hp: 55, speed: 118, damage: 10 },
       { count: 9,  hp: 55, speed: 122, damage: 10 },
-      { count: 12, hp: 55, speed: 125, damage: 10 },
     ],
   },
   {

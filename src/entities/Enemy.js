@@ -40,8 +40,8 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
   setTarget(player) { this.target = player }
 
   // Minimum distance we try to keep from other enemies so they don’t stack into one blob
-  static get MIN_ENEMY_DISTANCE() { return 56 }
-  static get SEPARATION_STRENGTH() { return 90 }
+  static get MIN_ENEMY_DISTANCE() { return 85 }
+  static get SEPARATION_STRENGTH() { return 140 }
 
   /** Returns a velocity offset (vx, vy) to nudge this enemy away from others that are too close. */
   getSeparationVector() {
@@ -94,7 +94,13 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
         this.play(this.walkAnim, true)
       }
     } else {
-      this.body.setVelocity(0, 0)
+      // In attack range — apply light separation so enemies don't stack on each other
+      const sep = this.getSeparationVector()
+      if (sep.vx !== 0 || sep.vy !== 0) {
+        this.body.setVelocity(sep.vx * 0.6, sep.vy * 0.6)
+      } else {
+        this.body.setVelocity(0, 0)
+      }
       if (this.attackCooldown <= 0) this.doAttack()
     }
 
