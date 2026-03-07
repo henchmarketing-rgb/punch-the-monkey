@@ -3,7 +3,7 @@ export default class BootScene extends Phaser.Scene {
 
   preload() {
     // Load lore bg first — it's the loading screen backdrop, shown as soon as it arrives
-    this.load.image('bg-lore', 'assets/backgrounds/bg-lore.png')
+    this.load.image('bg-lore', 'assets/backgrounds/bg-lore.webp')
 
     // === PUNCH-KUN ===
     this.load.image('punch-idle',     'assets/sprites/punch-idle.png')
